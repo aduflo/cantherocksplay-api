@@ -2,28 +2,36 @@ import Vapor
 
 func routes(_ app: Application) throws {
     
-    // GET health-check
-    app.get("health-check") { request in
-        return RootController.getHealthCheck()
-    }
-    
-    // /areas route
-    app.group("areas") { route in
+    // /api
+    app.group("api") { apiRoute in
         
-        // GET
-        route.get { request -> AreasResponse in
-            return AreasController.getAreas()
-        }
-    }
-    
-    // /area route
-    app.group("area") { route in
-        
-        // GET /:id
-        route.get(":id") { request -> AreaResponse in
-            let id = request.parameters.get("id")!
+        // /v1
+        apiRoute.group("v1") { v1Route in
             
-            return AreaController.getArea(id: id)
+            // GET health-check
+            v1Route.get("health-check") { request in
+                return RootController.getHealthCheck()
+            }.description("Returns health report.")
+            
+            // /areas
+            v1Route.group("areas") { areasRoute in
+                
+                // GET
+                areasRoute.get { request -> AreasResponse in
+                    return AreasController.getAreas()
+                }.description("Returns list of supported areas.")
+            }
+            
+            // /area
+            v1Route.group("area") { areaRoute in
+                
+                // GET /:id
+                areaRoute.get(":id") { request -> AreaByIdResponse in
+                    let id = request.parameters.get("id")!
+                    
+                    return AreaController.getArea(id: id)
+                }.description("Returns area info for associated <id>.")
+            }
         }
     }
 }

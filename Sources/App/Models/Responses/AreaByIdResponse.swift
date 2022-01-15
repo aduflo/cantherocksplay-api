@@ -1,5 +1,5 @@
 //
-//  AreaResponse.swift
+//  AreaByIdResponse.swift
 //  
 //
 //  Created by Adam Duflo on 1/15/22.
@@ -7,6 +7,6 @@
 
 import Vapor
 
-struct AreaResponse: Content {
+struct AreaByIdResponse: Content {
     let id: String
 }

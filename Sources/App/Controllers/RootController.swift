@@ -9,6 +9,7 @@ import Foundation
 
 struct RootController {
     
+    /// Returns health report.
     static func getHealthCheck() -> String {
         return "The rocks can play when they are dry :)"
     }

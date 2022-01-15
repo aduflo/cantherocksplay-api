@@ -10,7 +10,7 @@ import Foundation
 struct AreaController {
     
     /// Returns area info for associated id.
-    static func getArea(id: String) -> AreaResponse {
-        return AreaResponse(id: id)
+    static func getArea(id: String) -> AreaByIdResponse {
+        return AreaByIdResponse(id: id)
     }
 }
