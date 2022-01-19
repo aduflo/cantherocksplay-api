@@ -11,6 +11,6 @@ struct AreasController {
     
     /// Returns list of supported areas.
     static func getAreas() -> AreasResponse {
-        return .supported()
+        return AreasResponse(areas: Area.supportedAreas())
     }
 }

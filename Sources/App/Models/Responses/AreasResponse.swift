@@ -8,15 +8,5 @@
 import Vapor
 
 struct AreasResponse: Content {
-    let areas: [String]
-}
-
-extension AreasResponse {
-    static func supported() -> Self {
-        return AreasResponse(areas: [
-            "The Gunks",
-            "Red River Gorge",
-            "Red Rock Canyon",
-        ])
-    }
+    let areas: [Area]
 }
