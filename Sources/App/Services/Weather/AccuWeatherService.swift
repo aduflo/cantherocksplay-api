@@ -10,85 +10,107 @@ import Vapor
 protocol AccuWeatherServicing {
     
     ///
+    static var host: String { get }
+    ///
     static var apiKey: String { get }
     
     ///
-    var httpService: HTTPService { get }
+    static func getGeoData(client: Client, latitude: String, longitude: String) async throws -> AW_LocationGeoSearchResponse
     
     ///
-    typealias GetGeoDataHandler = (Result<String, Error>) -> Void
-    ///
-    func getGeoData(latitude: String, longitude: String, completion: @escaping GetGeoDataHandler)
+    static func get24HrHistoricData(client: Client, locationKey: String) async throws -> String
     
     ///
-    typealias Get24HrHistoricDataHandler = (Result<String, Error>) -> Void
-    ///
-    func get24HrHistoricData()
-    
-    ///
-    typealias Get24HrForecastHandler = (Result<String, Error>) -> Void
-    ///
-    func get24HrForecast()
+    static func get24HrForecast(client: Client, locationKey: String) async throws -> String
 }
 
 class AccuWeatherService: AccuWeatherServicing {
-    
+    static let host = "dataservice.accuweather.com"
     static let apiKey = Environment.get("AW_API_KEY") ?? ""
+}
+
+extension AccuWeatherService {
     
-    let httpService = HTTPService()
-    
-    // MARK: getGeoData functions
-    
-    func getGeoData(latitude: String, longitude: String, completion: @escaping GetGeoDataHandler) {
-        let request = getGeoDataHTTPRequest(latitude: latitude, longitude: longitude)
-        httpService.get(request) { [weak self] result in
-            switch result {
-            case .success(let data):
-                self?.getGeoDataSuccess(data: data, completion: completion)
-            case .failure(let error):
-                self?.getGeoDataFailure(error: error, completion: completion)
-            }
-        }
+    static func getGeoData(client: Client, latitude: String, longitude: String) async throws -> AW_LocationGeoSearchResponse {
+        let uri = Self.getGeoDataURI(latitude: latitude, longitude: longitude)
+        let response = try await client.get(uri)
+        return try response.content.decode(AW_LocationGeoSearchResponse.self)
     }
     
-    func getGeoDataHTTPRequest(latitude: String, longitude: String) -> HTTPRequest {
-        let path = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search"
-        let queryParams = [
-            "apiKey": Self.apiKey,
-            "q": "\(latitude)%2C\(longitude)"
-        ]
-        return HTTPRequest(path: path,
-                           queryParams: queryParams)
+    static func getGeoDataURI(latitude: String, longitude: String) -> URI {
+        return URI(scheme: .http,
+                   host: Self.host,
+                   path: "locations/v1/cities/geoposition/search",
+                   query: "apikey=\(Self.apiKey)&q=\(latitude)%2C\(longitude)")
     }
     
-    func getGeoDataSuccess(data: Data, completion: @escaping GetGeoDataHandler) {
-        let dataString = String(decoding: data, as: UTF8.self)
-        print(dataString)
-        let jsonObject = try! JSONSerialization.jsonObject(with: data, options: [])
-        print(jsonObject)
+    static func getGeoDataSuccess(response: ClientResponse) {
+        print(response)
     }
     
-    func getGeoDataFailure(error: Error, completion: @escaping GetGeoDataHandler) {
+    static func getGeoDataFailure(error: Error) {
         print(error)
     }
+}
+
+extension AccuWeatherService {
     
-    // MARK: get24HrHistoricData functions
+    static func get24HrHistoricData(client: Client, locationKey: String) async throws -> String {
+        let uri = get24HrHistoricDataURI(locationKey: locationKey)
+        client.get(uri).whenComplete { result in
+            switch result {
+            case .success(let response):
+                Self.get24HrHistoricDataSuccess(response: response)
+            case .failure(let error):
+                Self.get24HrHistoricDataError(error: error)
+            }
+        }
+        return ""
+    }
     
-    func get24HrHistoricData() {}
+    static func get24HrHistoricDataURI(locationKey: String) -> URI {
+        return URI(scheme: .http,
+                   host: Self.host,
+                   path: "currentconditions/v1/\(locationKey)/historical/24",
+                   query: "apikey=\(Self.apiKey)")
+    }
     
-    func get24HrHistoricDataHTTPRequest() {}
+    static func get24HrHistoricDataSuccess(response: ClientResponse) {
+        print(response)
+    }
     
-    func get24HrHistoricDataSuccess() {}
+    static func get24HrHistoricDataError(error: Error) {
+        print(error)
+    }
+}
+
+extension AccuWeatherService {
     
-    func get24HrHistoricDataError() {}
+    static func get24HrForecast(client: Client, locationKey: String) async throws -> String {
+        let uri = get24HrForecastURI(locationKey: locationKey)
+        client.get(uri).whenComplete { result in
+            switch result {
+            case .success(let response):
+                Self.get24HrForecastSuccess(response: response)
+            case .failure(let error):
+                Self.get24HrForecastError(error: error)
+            }
+        }
+        return ""
+    }
     
-    // MARK: get24HrForecast functions
+    static func get24HrForecastURI(locationKey: String) -> URI {
+        return URI(scheme: .http,
+                   host: Self.host,
+                   path: "forecasts/v1/daily/1day/\(locationKey)",
+                   query: "apikey=\(Self.apiKey)")
+    }
     
-    func get24HrForecast() {}
+    static func get24HrForecastSuccess(response: ClientResponse) {
+        print(response)
+    }
     
-    func get24HrForecastHTTPRequest() {}
-    
-    func get24HrForecastSuccess() {}
-    
-    func get24HrForecastError() {}
+    static func get24HrForecastError(error: Error) {
+        print(error)
+    }
 }

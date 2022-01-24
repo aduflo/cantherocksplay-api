@@ -32,6 +32,17 @@ func routes(_ app: Application) throws {
                     return AreaController.getArea(id: id)
                 }.description("Returns area info for associated <id>.")
             }
+            
+            // /data
+            v1Route.group("data") { dataRoute in
+                
+                // GET /geo
+                dataRoute.get("geo") { request -> String in
+                    return try await AccuWeatherService.getGeoData(client: request.client,
+                                                                   latitude: "37.870322840511534",
+                                                                   longitude: "-119.54015724464388").key
+                }
+            }
         }
     }
 }
