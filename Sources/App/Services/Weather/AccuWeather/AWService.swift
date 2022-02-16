@@ -26,7 +26,7 @@ protocol AWServicing {
 
 struct AWService: AWServicing {
     static let host = "dataservice.AW.com"
-    static let apiKey = Environment.get("AWAPI_KEY") ?? ""
+    static let apiKey = Environment.get("AW_API_KEY") ?? ""
     
     let client: Client
 }

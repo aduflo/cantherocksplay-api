@@ -52,11 +52,11 @@ fileprivate func areaRoute(addedTo routesBuilder: RoutesBuilder) {
         
         return AreaController.getArea(id: id)
     }
-    .description("Returns associated area info for {id}.")
+    .description("Returns area info for {id}.")
 }
 
 fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
-    let dataRoute = routesBuilder.grouped("data")
+    let dataRoute = routesBuilder.grouped(DataMiddleware()).grouped("data")
     
     // /update
     updateRoute(addedTo: dataRoute)
