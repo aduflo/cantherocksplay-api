@@ -7,9 +7,12 @@
 
 import Foundation
 
-struct AreaController {
-    
+protocol AreaControlling {
     /// Returns area info for associated id.
+    static func getArea(id: String) -> AreaByIdResponse
+}
+
+struct AreaController: AreaControlling {
     static func getArea(id: String) -> AreaByIdResponse {
         return AreaByIdResponse(id: id)
     }

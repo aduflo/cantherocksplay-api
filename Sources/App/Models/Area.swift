@@ -13,7 +13,7 @@ struct Area: Content {
     let coordinate: Coordinate
     let zone: Zone
     
-    enum Zone: String, Content {
+    enum Zone: String, CaseIterable, Content {
         case eastern
         case central
         case mountain
@@ -35,7 +35,7 @@ struct Area: Content {
 
 extension Area {
     static func supportedAreas() -> [Self] {
-        // constraint: < 25 locations due to accuweather daily call limit
+        // constraint: < 25 locations due to AW daily call limit
         return [
             Area(
                 name: "Yosemite National Park",

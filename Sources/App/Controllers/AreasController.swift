@@ -7,9 +7,12 @@
 
 import Foundation
 
-struct AreasController {
-    
+protocol AreasControlling {
     /// Returns list of supported areas.
+    static func getAreas() -> AreasResponse
+}
+
+struct AreasController: AreasControlling {
     static func getAreas() -> AreasResponse {
         return AreasResponse(areas: Area.supportedAreas())
     }
