@@ -9,9 +9,9 @@ import Vapor
 
 protocol DataControlling {
     ///
-    static func getUpdate(using client: Client) -> String
+    static func getRefresh(using client: Client) -> String
     ///
-    static func getUpdate(zone: Area.Zone, using client: Client) -> String
+    static func getRefresh(zone: Area.Zone, using client: Client) -> String
     ///
     static func getClear() -> String
     ///
@@ -19,12 +19,12 @@ protocol DataControlling {
 }
 
 struct DataController: DataControlling {
-    static func getUpdate(using client: Client) -> String {
+    static func getRefresh(using client: Client) -> String {
 //        Self.updateWeatherData(for: Area.supportedAreas(), using: client)
         return ""
     }
     
-    static func getUpdate(zone: Area.Zone, using client: Client) -> String {
+    static func getRefresh(zone: Area.Zone, using client: Client) -> String {
 //        let areas = Area.supportedAreas().filter { $0.zone == zone }
 //        Self.updateWeatherData(for: areas, using: client)
         return ""

@@ -5,114 +5,97 @@ func routes(_ app: Application) throws {
 }
 
 fileprivate func apiRoute(_ app: Application) {
+    // MARK: /api
     let apiRoute = app.grouped("api")
     
-    // /v1
     v1Route(addedTo: apiRoute)
 }
 
 fileprivate func v1Route(addedTo routesBuilder: RoutesBuilder) {
+    // MARK: /v1
     let v1Route = routesBuilder.grouped("v1")
     
-    // GET /health-check
+    // MARK: GET /health
     v1Route.get("health") { request in
         return V1Controller.getHealth()
     }
     .description("Returns health report.")
     
-    // /areas
     areasRoute(addedTo: v1Route)
-    
-    // /area
-    areaRoute(addedTo: v1Route)
-    
-    // /data
     dataRoute(addedTo: v1Route)
 }
 
 fileprivate func areasRoute(addedTo routesBuilder: RoutesBuilder) {
-    let areasRoute = routesBuilder.grouped("areas")
+    // MARK: /areas
+    let areasRoute = routesBuilder.grouped(AreasMiddleware()).grouped("areas")
     
-    // GET
+    // MARK: GET
     areasRoute.get { request -> AreasResponse in
         return AreasController.getAreas()
     }
-    .description("Returns list of supported areas.")
-}
-
-fileprivate func areaRoute(addedTo routesBuilder: RoutesBuilder) {
-    let areaRoute = routesBuilder.grouped("area")
+    .description("Returns list of areas.")
     
-    // GET /:id
-    let idParameter = "id"
-    areaRoute.get(":\(idParameter)") { request -> AreaByIdResponse in
-        guard let id = request.parameters.get(idParameter) else {
-            throw Abort(.internalServerError, reason: "Failed to extract {\(idParameter)} parameter")
+    // MARK: GET /:id
+    let idParam = "id"
+    areasRoute.get(":\(idParam)") { request -> AreasByIdResponse in
+        guard let id = request.parameters.get(idParam) else {
+            throw Abort(.internalServerError, reason: "Failed to extract {\(idParam)} parameter")
         }
         
-        return AreaController.getArea(id: id)
+        return AreasController.getAreas(id: id)
     }
-    .description("Returns area info for {id}.")
+    .description("Returns area info for {\(idParam)}.")
 }
 
 fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
+    // MARK: /data
     let dataRoute = routesBuilder.grouped(DataMiddleware()).grouped("data")
     
-    // /update
-    updateRoute(addedTo: dataRoute)
-    
-    // /clear
-    clearRoute(addedTo: dataRoute)
-}
-
-fileprivate func updateRoute(addedTo routesBuilder: RoutesBuilder) {
-    let updateRoute = routesBuilder.grouped("update")
-    
-    // GET
-    updateRoute.get { request -> String in
-        return DataController.getUpdate(using: request.client)
-    }
-    .description("Returns completion status of data update task for all zones.")
-    
-    // GET /:zone
-    let zoneParameter = "zone"
-    updateRoute.get(":\(zoneParameter)") { request -> String in
-        guard let zoneValue = request.parameters.get(zoneParameter) else {
-            throw Abort(.internalServerError, reason: "Failed to extract {\(zoneParameter)} parameter")
+    let zoneParam = "zone"
+    func extractZone(from request: Request) throws -> Area.Zone {
+        guard let zoneValue = request.parameters.get(zoneParam) else {
+            throw Abort(.internalServerError, reason: "Failed to extract {\(zoneParam)} parameter")
         }
         
         guard let zone = Area.Zone(rawValue: zoneValue) else {
             let validValues = Area.Zone.allCases.map({ $0.rawValue }).joined(separator: ", ")
-            throw Abort(.notFound, reason: "Invalid value for {\(zoneParameter)}. Accepted values: \(validValues)")
+            throw Abort(.notFound, reason: "Invalid value for {\(zoneParam)}. Accepted values: \(validValues)")
         }
         
-        return DataController.getUpdate(zone: zone, using: request.client)
+        return zone
     }
-    .description("Returns completion status of data update task for {zone}.")
-}
-
-fileprivate func clearRoute(addedTo routesBuilder: RoutesBuilder) {
-    let clearRoute = routesBuilder.grouped("clear")
     
-    // GET
+    // MARK: -
+    
+    // MARK: /refresh
+    let refreshRoute = dataRoute.grouped("refresh")
+    
+    // MARK: GET
+    refreshRoute.get { request -> String in
+        return DataController.getRefresh(using: request.client)
+    }
+    .description("Returns completion status of data refresh task for all zones.")
+    
+    // MARK: GET /:zone
+    refreshRoute.get(":\(zoneParam)") { request -> String in
+        return DataController.getRefresh(zone: try extractZone(from: request), using: request.client)
+    }
+    .description("Returns completion status of data refresh task for {\(zoneParam)}.")
+    
+    // MARK: -
+    
+    // MARK: /clear
+    let clearRoute = dataRoute.grouped("clear")
+    
+    // MARK: GET
     clearRoute.get { request -> String in
         return DataController.getClear()
     }
     .description("Returns completion status of data clear task for all zones.")
     
-    // GET /:zone
-    let zoneParameter = "zone"
-    clearRoute.get(":\(zoneParameter)") { request -> String in
-        guard let zoneValue = request.parameters.get(zoneParameter) else {
-            throw Abort(.internalServerError, reason: "Failed to extract {\(zoneParameter)} parameter")
-        }
-        
-        guard let zone = Area.Zone(rawValue: zoneValue) else {
-            let validValues = Area.Zone.allCases.map({ $0.rawValue }).joined(separator: ", ")
-            throw Abort(.notFound, reason: "Invalid value for {\(zoneParameter)}. Accepted values: \(validValues)")
-        }
-        
-        return DataController.getClear(zone: zone)
+    // MARK: GET /:zone
+    clearRoute.get(":\(zoneParam)") { request -> String in
+        return DataController.getClear(zone: try extractZone(from: request))
     }
-    .description("Returns completion status of data clear task for {zone}.")
+    .description("Returns completion status of data clear task for {\(zoneParam)}.")
 }
