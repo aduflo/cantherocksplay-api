@@ -9,9 +9,9 @@ import Vapor
 
 protocol DataControlling {
     ///
-    static func getRefresh(using client: Client) -> String
+    static func getRefresh(using client: Client) async throws -> String
     ///
-    static func getRefresh(zone: Area.Zone, using client: Client) -> String
+    static func getRefresh(zone: Area.Zone, using client: Client) async throws -> String
     ///
     static func getClear() -> String
     ///
@@ -19,14 +19,25 @@ protocol DataControlling {
 }
 
 struct DataController: DataControlling {
-    static func getRefresh(using client: Client) -> String {
-//        Self.updateWeatherData(for: Area.supportedAreas(), using: client)
+    static func getRefresh(using client: Client) async throws -> String {
+//        Self.refreshWeatherData(for: Area.supportedAreas(), using: client)
         return ""
     }
     
-    static func getRefresh(zone: Area.Zone, using client: Client) -> String {
-//        let areas = Area.supportedAreas().filter { $0.zone == zone }
-//        Self.updateWeatherData(for: areas, using: client)
+    static func getRefresh(zone: Area.Zone, using client: Client) async throws -> String {
+        let areas = Area.supportedAreas().filter { $0.zone == zone }
+//        Self.refreshWeatherData(for: areas, using: client)
+        
+        for area in areas {
+            let awService = AWService(client: client)
+            let geoData = try await awService.getGeopositionSearchData(coordinate: area.coordinate)
+            print("geoData: \(geoData)")
+            let forecasts1DayData = try await awService.getForecasts1DayData(locationKey: geoData.locationKey)
+            print("forecasts24HrData: \(forecasts1DayData)")
+//            let historical24HrData = try await awService.getHistorical24HrData(locationKey: geoData.locationKey)
+//            print("historical24HrData: \(historical24HrData)")
+            break
+        }
         return ""
     }
     
@@ -38,7 +49,7 @@ struct DataController: DataControlling {
         return ""
     }
     
-//    static func updateWeatherData(for areas: [Area], using client: Client) {
+//    static func refreshWeatherData(for areas: [Area], using client: Client) {
 //        let AWService = AWService(client: client)
 //        for area in areas {
 //            let geoData = try await AWService.getGeopositionSearchData(coordinate: area.coordinate)

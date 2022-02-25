@@ -65,26 +65,22 @@ fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
         return zone
     }
     
-    // MARK: -
-    
-    // MARK: /refresh
+    // MARK: - /refresh
     let refreshRoute = dataRoute.grouped("refresh")
     
     // MARK: GET
     refreshRoute.get { request -> String in
-        return DataController.getRefresh(using: request.client)
+        return try await DataController.getRefresh(using: request.client)
     }
     .description("Returns completion status of data refresh task for all zones.")
     
     // MARK: GET /:zone
     refreshRoute.get(":\(zoneParam)") { request -> String in
-        return DataController.getRefresh(zone: try extractZone(from: request), using: request.client)
+        return try await DataController.getRefresh(zone: try extractZone(from: request), using: request.client)
     }
     .description("Returns completion status of data refresh task for {\(zoneParam)}.")
     
-    // MARK: -
-    
-    // MARK: /clear
+    // MARK: - /clear
     let clearRoute = dataRoute.grouped("clear")
     
     // MARK: GET
