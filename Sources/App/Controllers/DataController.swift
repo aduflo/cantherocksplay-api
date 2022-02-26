@@ -32,10 +32,10 @@ struct DataController: DataControlling {
             let awService = AWService(client: client)
             let geoData = try await awService.getGeopositionSearchData(coordinate: area.coordinate)
             print("geoData: \(geoData)")
-            let forecasts1DayData = try await awService.getForecasts1DayData(locationKey: geoData.locationKey)
-            print("forecasts24HrData: \(forecasts1DayData)")
-//            let historical24HrData = try await awService.getHistorical24HrData(locationKey: geoData.locationKey)
-//            print("historical24HrData: \(historical24HrData)")
+//            let forecasts1DayData = try await awService.getForecasts1DayData(locationKey: geoData.locationKey)
+//            print("forecasts24HrData: \(forecasts1DayData)")
+            let historical24HrData = try await awService.getHistorical24HrData(locationKey: geoData.locationKey)
+            print("historical24HrData: \(historical24HrData)")
             break
         }
         return ""

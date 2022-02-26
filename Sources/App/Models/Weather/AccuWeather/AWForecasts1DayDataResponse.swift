@@ -21,19 +21,11 @@ extension AWForecasts1DayDataResponse {
     
     struct Headline: Content {
         let text: String
-        let effectiveDate: String
+        let effectiveDate: String // ISO8601 format
         
         enum CodingKeys: String, CodingKey {
             case text = "Text"
             case effectiveDate = "EffectiveDate"
-        }
-        
-        var effectiveDateSansTime: String? {
-            guard let firstIdxOfT = effectiveDate.firstIndex(of: "T") else {
-                return nil
-            }
-            
-            return String(effectiveDate.prefix(upTo: firstIdxOfT))
         }
     }
 }
@@ -52,24 +44,12 @@ extension AWForecasts1DayDataResponse {
         }
         
         struct Temperature: Content {
-            let minimum: TempUnit?
-            let maximum: TempUnit?
+            let minimum: AWValueUnit?
+            let maximum: AWValueUnit?
             
             enum CodingKeys: String, CodingKey {
                 case minimum = "Minimum"
                 case maximum = "Maximum"
-            }
-            
-            struct TempUnit: Content {
-                let value: Double?
-                let unit: String
-                let unitType: Int
-                
-                enum CodingKeys: String, CodingKey {
-                    case value = "Value"
-                    case unit = "Unit"
-                    case unitType = "UnitType"
-                }
             }
         }
         
@@ -83,10 +63,10 @@ extension AWForecasts1DayDataResponse {
             let rainProbability: Int?
             let snowProbability: Int?
             let iceProbability: Int?
-            let totalLiquid: PrecipUnit?
-            let rain: PrecipUnit?
-            let snow: PrecipUnit?
-            let ice: PrecipUnit?
+            let totalLiquid: AWValueUnit?
+            let rain: AWValueUnit?
+            let snow: AWValueUnit?
+            let ice: AWValueUnit?
             
             enum CodingKeys: String, CodingKey {
                 case hasPrecipitation = "HasPrecipitation"
@@ -102,18 +82,6 @@ extension AWForecasts1DayDataResponse {
                 case rain = "Rain"
                 case snow = "Snow"
                 case ice = "Ice"
-            }
-            
-            struct PrecipUnit: Content {
-                let value: Double?
-                let unit: String
-                let unitType: Int
-                
-                enum CodingKeys: String, CodingKey {
-                    case value = "Value"
-                    case unit = "Unit"
-                    case unitType = "UnitType"
-                }
             }
         }
     }
