@@ -5,21 +5,26 @@
 //  Created by Adam Duflo on 1/15/22.
 //
 
-import Foundation
+import Vapor
 
 protocol AreasControlling {
     /// Returns list of supported areas.
-    static func getAreas() -> AreasResponse
+    static func getAreas(using app: Application) throws -> AreasResponse
     /// Returns area info for associated id.
     static func getAreas(id: String) -> AreasByIdResponse
 }
 
 struct AreasController: AreasControlling {
-    static func getAreas() -> AreasResponse {
-        return AreasResponse(areas: Area.supportedAreas())
+    static func getAreas(using app: Application) throws -> AreasResponse {
+        guard let areas = app.supportedAreas else {
+            throw Abort(.internalServerError, reason: "Failed to extract supportedAreas")
+        }
+        
+        return AreasResponse(areas: areas)
     }
     
     static func getAreas(id: String) -> AreasByIdResponse {
+        // TODO: implement :)
         return AreasByIdResponse(id: id)
     }
 }

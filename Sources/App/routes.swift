@@ -31,7 +31,7 @@ fileprivate func areasRoute(addedTo routesBuilder: RoutesBuilder) {
     
     // MARK: GET
     areasRoute.get { request -> AreasResponse in
-        return AreasController.getAreas()
+        return try AreasController.getAreas(using: request.application)
     }
     .description("Returns list of areas.")
     
@@ -69,18 +69,19 @@ fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
     let refreshRoute = dataRoute.grouped("refresh")
     
     // MARK: GET
-    refreshRoute.get { request -> String in
-        return try await DataController.getRefresh(using: request.client)
+    refreshRoute.get { request -> DataRefreshResponse in
+        return try await DataController.getRefresh(using: request)
     }
     .description("Returns completion status of data refresh task for all zones.")
     
     // MARK: GET /:zone
-    refreshRoute.get(":\(zoneParam)") { request -> String in
-        return try await DataController.getRefresh(zone: try extractZone(from: request), using: request.client)
+    refreshRoute.get(":\(zoneParam)") { request -> DataRefreshByZoneResponse in
+        return try await DataController.getRefresh(zone: try extractZone(from: request), using: request)
     }
     .description("Returns completion status of data refresh task for {\(zoneParam)}.")
     
     // MARK: - /clear
+    // TODO: determine if clearRoute is needed
     let clearRoute = dataRoute.grouped("clear")
     
     // MARK: GET
