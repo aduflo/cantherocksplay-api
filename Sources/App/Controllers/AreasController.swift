@@ -20,11 +20,11 @@ struct AreasController: AreasControlling {
             throw Abort(.internalServerError, reason: "Failed to extract supportedAreas")
         }
         
-        return AreasResponse(areas: areas)
+        return .init(areas: areas)
     }
     
     static func getAreas(id: String) -> AreasByIdResponse {
         // TODO: implement :)
-        return AreasByIdResponse(id: id)
+        return .init(id: id)
     }
 }

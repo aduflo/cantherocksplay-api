@@ -25,7 +25,7 @@ struct DataController: DataControlling {
         }
         
         try await DataRefreshService.refreshWeatherData(for: supportedAreas, using: request.client)
-        return DataRefreshResponse()
+        return .init()
     }
     
     static func getRefresh(zone: Area.Zone, using request: Request) async throws -> DataRefreshByZoneResponse {
@@ -35,7 +35,7 @@ struct DataController: DataControlling {
         
         let zoneMatchedAreas = supportedAreas.filter { $0.zone == zone }
         try await DataRefreshService.refreshWeatherData(for: zoneMatchedAreas, using: request.client)
-        return DataRefreshByZoneResponse()
+        return .init()
     }
     
     static func getClear() -> String {

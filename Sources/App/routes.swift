@@ -16,7 +16,7 @@ fileprivate func v1Route(addedTo routesBuilder: RoutesBuilder) {
     let v1Route = routesBuilder.grouped("v1")
     
     // MARK: GET /health
-    v1Route.get("health") { request in
+    v1Route.get("health") { request -> V1HealthResponse in
         return V1Controller.getHealth()
     }
     .description("Returns health report.")
