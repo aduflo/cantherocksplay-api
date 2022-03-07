@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import WCTRPCommon
 
 protocol AreasControlling {
     /// Returns list of supported areas.

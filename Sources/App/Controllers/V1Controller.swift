@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import WCTRPCommon
 
 protocol V1Controlling {
     /// Returns health report.

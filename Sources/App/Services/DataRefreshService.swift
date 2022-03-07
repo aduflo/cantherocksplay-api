@@ -6,9 +6,10 @@
 //
 
 import Vapor
+import WCTRPCommon
 
 struct DataRefreshService {
-    static func refreshWeatherData(for areas: [Area], using client: Client) async throws {
+    static func refreshWeatherData(for areas: Areas, using client: Client) async throws {
         // TODO: fully implement :)
         /* What's this do?
          per iteration:

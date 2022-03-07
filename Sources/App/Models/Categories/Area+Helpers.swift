@@ -1,41 +1,25 @@
 //
-//  Area.swift
+//  Area+Helpers.swift
 //  
 //
 //  Created by Adam Duflo on 1/16/22.
 //
 
 import Vapor
+import WCTRPCommon
 
-struct Area: Content {
-    let id: String
-    let name: String
-    let coordinate: Coordinate
-    let zone: Zone
-    
-    enum Zone: String, CaseIterable, Content {
-        case eastern
-        case central
-        case mountain
-        case pacific
-    }
-    
-    // MARK: Constructor
-    
-    init(id: String = UUID().uuidString,
-         name: String,
-         coordinate: Coordinate,
-         zone: Zone) {
-        self.id = id
-        self.name = name
-        self.coordinate = coordinate
-        self.zone = zone
+extension Area: Content {}
+
+extension Area {
+    /// Convenience initializer leveraging `UUID` for `id` argument.
+    static func uuided(name: String, coordinate: Coordinate, zone: Zone) -> Area {
+        return Area(id: UUID().uuidString, name: name, coordinate: coordinate, zone: zone)
     }
 }
 
 extension Area {
-    static func areaToString(_ area: Area) -> String? {
-        guard let data = try? JSONEncoder().encode(area) else {
+    func toString() -> String? {
+        guard let data = try? JSONEncoder().encode(self) else {
             return nil
         }
         
@@ -49,12 +33,12 @@ extension Area {
         let path = app.directory.resourcesDirectory
         let url = URL(fileURLWithPath: path).appendingPathComponent("supported-areas.json", isDirectory: false)
         let data = try Data(contentsOf: url)
-        return try JSONDecoder().decode([Area].self, from: data)
+        return try JSONDecoder().decode(Areas.self, from: data)
     }
 }
 
 struct SupportedAreasStorageKey: StorageKey {
-    typealias Value = [Area]
+    typealias Value = Areas
 }
 
 extension Application {

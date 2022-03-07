@@ -137,6 +137,15 @@
         }
       },
       {
+        "package": "WCTRPCommon",
+        "repositoryURL": "https://github.com/aduflo/WCTRPCommon",
+        "state": {
+          "branch": "main",
+          "revision": "28fafaf57e2610ca51e5cdeaca515532042668e9",
+          "version": null
+        }
+      },
+      {
         "package": "websocket-kit",
         "repositoryURL": "https://github.com/vapor/websocket-kit.git",
         "state": {

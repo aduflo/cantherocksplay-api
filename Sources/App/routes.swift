@@ -1,4 +1,5 @@
 import Vapor
+import WCTRPCommon
 
 func routes(_ app: Application) throws {
     apiRoute(app)
