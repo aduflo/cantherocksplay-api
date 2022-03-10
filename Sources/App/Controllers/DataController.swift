@@ -13,10 +13,6 @@ protocol DataControlling {
     static func getRefresh(using request: Request) async throws -> DataRefreshResponse
     ///
     static func getRefresh(zone: Area.Zone, using request: Request) async throws -> DataRefreshByZoneResponse
-    ///
-    static func getClear() -> String
-    ///
-    static func getClear(zone: Area.Zone) -> String
 }
 
 struct DataController: DataControlling {
@@ -37,13 +33,5 @@ struct DataController: DataControlling {
         let zoneMatchedAreas = supportedAreas.filter { $0.zone == zone }
         try await DataRefreshService.refreshWeatherData(for: zoneMatchedAreas, using: request.client)
         return .init()
-    }
-    
-    static func getClear() -> String {
-        return ""
-    }
-    
-    static func getClear(zone: Area.Zone) -> String {
-        return ""
     }
 }

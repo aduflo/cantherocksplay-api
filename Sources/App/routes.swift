@@ -18,7 +18,7 @@ fileprivate func v1Route(addedTo routesBuilder: RoutesBuilder) {
     
     // MARK: GET /health
     v1Route.get("health") { request -> V1HealthResponse in
-        return V1Controller.getHealth()
+        return V1Controller.getHealth(app: request.application)
     }
     .description("Returns health report.")
     
@@ -80,20 +80,4 @@ fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
         return try await DataController.getRefresh(zone: try extractZone(from: request), using: request)
     }
     .description("Returns completion status of data refresh task for {\(zoneParam)}.")
-    
-    // MARK: - /clear
-    // TODO: determine if clearRoute is needed
-    let clearRoute = dataRoute.grouped("clear")
-    
-    // MARK: GET
-    clearRoute.get { request -> String in
-        return DataController.getClear()
-    }
-    .description("Returns completion status of data clear task for all zones.")
-    
-    // MARK: GET /:zone
-    clearRoute.get(":\(zoneParam)") { request -> String in
-        return DataController.getClear(zone: try extractZone(from: request))
-    }
-    .description("Returns completion status of data clear task for {\(zoneParam)}.")
 }

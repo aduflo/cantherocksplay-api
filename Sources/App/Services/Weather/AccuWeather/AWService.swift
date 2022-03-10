@@ -18,6 +18,8 @@ protocol AWServicing {
     var client: Client { get }
     
     ///
+    func response(path: String, query: String) async throws -> ClientResponse
+    ///
     func getGeopositionSearchData(coordinate: Area.Coordinate) async throws -> AWGeopositionSearchDataResponse
     ///
     func getForecasts1DayData(locationKey: String) async throws -> AWForecasts1DayDataResponse
