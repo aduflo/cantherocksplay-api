@@ -52,21 +52,7 @@ fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
     // MARK: /data
     let dataRoute = routesBuilder.grouped(DataMiddleware()).grouped("data")
     
-    let zoneParam = "zone"
-    func extractZone(from request: Request) throws -> Area.Zone {
-        guard let zoneValue = request.parameters.get(zoneParam) else {
-            throw Abort(.internalServerError, reason: "Failed to extract {\(zoneParam)} parameter")
-        }
-        
-        guard let zone = Area.Zone(rawValue: zoneValue) else {
-            let validValues = Area.Zone.allCases.map({ $0.rawValue }).joined(separator: ", ")
-            throw Abort(.notFound, reason: "Invalid value for {\(zoneParam)}. Accepted values: \(validValues)")
-        }
-        
-        return zone
-    }
-    
-    // MARK: - /refresh
+    // MARK: /refresh
     let refreshRoute = dataRoute.grouped("refresh")
     
     // MARK: GET
@@ -76,8 +62,18 @@ fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
     .description("Returns completion status of data refresh task for all zones.")
     
     // MARK: GET /:zone
+    let zoneParam = "zone"
     refreshRoute.get(":\(zoneParam)") { request -> DataRefreshByZoneResponse in
-        return try await DataController.getRefresh(zone: try extractZone(from: request), using: request)
+        guard let zoneValue = request.parameters.get(zoneParam) else {
+            throw Abort(.internalServerError, reason: "Failed to extract {\(zoneParam)} parameter")
+        }
+        
+        guard let zone = Area.Zone(rawValue: zoneValue) else {
+            let validValues = Area.Zone.allCases.map({ $0.rawValue }).joined(separator: ", ")
+            throw Abort(.notFound, reason: "Invalid value for {\(zoneParam)}. Accepted values: \(validValues)")
+        }
+        
+        return try await DataController.getRefresh(zone: zone, using: request)
     }
     .description("Returns completion status of data refresh task for {\(zoneParam)}.")
 }

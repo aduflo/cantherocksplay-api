@@ -18,7 +18,6 @@ struct AWForecasts1DayDataResponse: Content {
 }
 
 extension AWForecasts1DayDataResponse {
-    
     struct Headline: Content {
         let text: String
         let effectiveDate: String // ISO8601 format
@@ -31,7 +30,6 @@ extension AWForecasts1DayDataResponse {
 }
 
 extension AWForecasts1DayDataResponse {
-    
     struct DailyForecasts: Content {
         let temperature: Temperature
         let day: DayUnit

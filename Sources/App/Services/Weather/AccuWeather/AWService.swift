@@ -51,18 +51,14 @@ extension AWService {
         let response = try await response(path: path, query: query)
         return try response.content.decode(AWGeopositionSearchDataResponse.self)
     }
-}
-
-extension AWService {
+    
     func getForecasts1DayData(locationKey: String) async throws -> AWForecasts1DayDataResponse {
         let path = "forecasts".pathed("v1", "daily", "1day", locationKey)
         let query = "apikey=\(Self.apiKey)&details=true"
         let response = try await response(path: path, query: query)
         return try response.content.decode(AWForecasts1DayDataResponse.self)
     }
-}
-
-extension AWService {
+    
     func getHistorical24HrData(locationKey: String) async throws -> AWHistorical24HrDataResponse {
         let path = "currentconditions".pathed("v1", locationKey, "historical", "24")
         let query = "apikey=\(Self.apiKey)&details=true"

@@ -23,7 +23,6 @@ struct AWHistorical24HrDataResponse: Content {
 }
 
 extension  AWHistorical24HrDataResponse {
-    
     struct HourData: Content {
         let localObservationDateTime: String // ISO8601 format
         let hasPrecipitation: Bool
