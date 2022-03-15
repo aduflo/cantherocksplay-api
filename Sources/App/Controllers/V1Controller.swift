@@ -5,24 +5,24 @@
 //  Created by Adam Duflo on 1/15/22.
 //
 
-import WCTRPCommon
+import Fluent
 import Vapor
+import WCTRPCommon
 
 protocol V1Controlling {
     /// Returns health report.
-    static func getHealth(app: Application) -> V1HealthResponse
+    static func getHealth(using app: Application) async throws -> V1HealthResponse
 }
 
 struct V1Controller: V1Controlling {
-    static func getHealth(app: Application) -> V1HealthResponse {
+    static func getHealth(using app: Application) async throws -> V1HealthResponse {
         // TODO: proper health check
         /*
          to check:
-         - db is connected
+         - db is configured
          - tables exist
-         - supportedAreas is populated
          */
-        guard app.databases.ids().contains(.psql), app.supportedAreas != nil else {
+        guard app.databases.ids().contains(.psql), try await AreaModel.query(on: app.db).count() == 15 else {
             return .init(message: "The rocks cannot play right now :(")
         }
         

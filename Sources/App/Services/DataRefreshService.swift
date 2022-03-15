@@ -5,16 +5,17 @@
 //  Created by Adam Duflo on 2/25/22.
 //
 
+import FluentKit
 import Vapor
 import WCTRPCommon
 
 protocol DataRefreshServicing {
     ///
-    static func refreshWeatherData(for areas: Areas, using client: Client) async throws
+    static func refreshWeatherData(for areas: Areas, using client: Client, _ dataBase: Database) async throws
 }
 
-struct DataRefreshService {
-    static func refreshWeatherData(for areas: Areas, using client: Client) async throws {
+struct DataRefreshService: DataRefreshServicing {
+    static func refreshWeatherData(for areas: Areas, using client: Client, _ database: Database) async throws {
         // TODO: fully implement :)
         /* What's this do?
          per iteration:
@@ -26,8 +27,12 @@ struct DataRefreshService {
                  - if collection exceeds 7, trim to 7 (should hold onto 7? why not just 3?)
          */
         
+//        let awService = AWService(client: client)
 //        for area in areas {
-//            Self.refreshWeatherData(for: area, using: AWService(client: client))
+//            let geoData = try await awService.getGeopositionSearchData(coordinate: area.coordinate)
+//            async let forecasts1DayData = awService.getForecasts1DayData(locationKey: geoData.locationKey)
+//            async let historical24HrData = awService.getHistorical24HrData(locationKey: geoData.locationKey)
+//            _ = try await (forecasts1DayData, historical24HrData)
 //        }
     }
     

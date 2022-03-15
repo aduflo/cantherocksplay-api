@@ -18,7 +18,7 @@ fileprivate func v1Route(addedTo routesBuilder: RoutesBuilder) {
     
     // MARK: GET /health
     v1Route.get("health") { request -> V1HealthResponse in
-        return V1Controller.getHealth(app: request.application)
+        return try await V1Controller.getHealth(using: request.application)
     }
     .description("Returns health report.")
     
@@ -32,7 +32,7 @@ fileprivate func areasRoute(addedTo routesBuilder: RoutesBuilder) {
     
     // MARK: GET
     areasRoute.get { request -> AreasResponse in
-        return try AreasController.getAreas(using: request.application)
+        return try await AreasController.getAreas(using: request)
     }
     .description("Returns list of areas.")
     
@@ -68,8 +68,8 @@ fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
             throw Abort(.internalServerError, reason: "Failed to extract {\(zoneParam)} parameter")
         }
         
-        guard let zone = Area.Zone(rawValue: zoneValue) else {
-            let validValues = Area.Zone.allCases.map({ $0.rawValue }).joined(separator: ", ")
+        guard let zone = Zone(rawValue: zoneValue) else {
+            let validValues = Zone.allCases.map({ $0.rawValue }).joined(separator: ", ")
             throw Abort(.notFound, reason: "Invalid value for {\(zoneParam)}. Accepted values: \(validValues)")
         }
         

@@ -8,14 +8,16 @@ public func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     
-    // setup postgres db
-    if let url = Environment.get("DATABASE_URL") {
-        try app.databases.use(.postgres(url: url), as: .psql)
-    }
-    
-    // initialize supportedAreas
-    if let supportedAreas = try? Area.supportedAreas(using: app) {
-        app.supportedAreas = supportedAreas
+    // setup postgresql db
+    if let url = Environment.get("DATABASE_URL"),
+       var configuration = PostgresConfiguration(url: url) {
+        configuration.tlsConfiguration = .makeClientConfiguration()
+        configuration.tlsConfiguration?.certificateVerification = .none
+        app.databases.use(.postgres(configuration: configuration), as: .psql, isDefault: true)
+        
+        // add migrations & seeds
+//        app.migrations.add(Migrations(), Seeds())
+//        app.logger.logLevel = .debug
     }
 
     // register routes

@@ -18,9 +18,7 @@ protocol AWServicing {
     var client: Client { get }
     
     ///
-    func response(path: String, query: String) async throws -> ClientResponse
-    ///
-    func getGeopositionSearchData(coordinate: Area.Coordinate) async throws -> AWGeopositionSearchDataResponse
+    func getGeopositionSearchData(coordinate: Coordinate) async throws -> AWGeopositionSearchDataResponse
     ///
     func getForecasts1DayData(locationKey: String) async throws -> AWForecasts1DayDataResponse
     ///
@@ -35,17 +33,7 @@ struct AWService: AWServicing {
 }
 
 extension AWService {
-    func response(path: String, query: String) async throws -> ClientResponse {
-        let uri = URI(scheme: .http,
-                      host: Self.host,
-                      path: path,
-                      query: query)
-        return try await client.get(uri)
-    }
-}
-
-extension AWService {
-    func getGeopositionSearchData(coordinate: Area.Coordinate) async throws -> AWGeopositionSearchDataResponse {
+    func getGeopositionSearchData(coordinate: Coordinate) async throws -> AWGeopositionSearchDataResponse {
         let path = "locations".pathed("v1", "cities", "geoposition", "search")
         let query = "apikey=\(Self.apiKey)&q=\(coordinate.latitude)%2C\(coordinate.longitude)"
         let response = try await response(path: path, query: query)
@@ -64,5 +52,15 @@ extension AWService {
         let query = "apikey=\(Self.apiKey)&details=true"
         let response = try await response(path: path, query: query)
         return try response.content.decode(AWHistorical24HrDataResponse.self)
+    }
+}
+
+extension AWService {
+    func response(path: String, query: String) async throws -> ClientResponse {
+        let uri = URI(scheme: .http,
+                      host: Self.host,
+                      path: path,
+                      query: query)
+        return try await client.get(uri)
     }
 }
