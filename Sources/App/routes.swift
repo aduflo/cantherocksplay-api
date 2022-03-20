@@ -32,18 +32,18 @@ fileprivate func areasRoute(addedTo routesBuilder: RoutesBuilder) {
     
     // MARK: GET
     areasRoute.get { request -> AreasResponse in
-        return try await AreasController.getAreas(using: request)
+        return try await AreasController.getAreas(using: request.db)
     }
     .description("Returns list of areas.")
     
     // MARK: GET /:id
     let idParam = "id"
     areasRoute.get(":\(idParam)") { request -> AreasByIdResponse in
-        guard let id = request.parameters.get(idParam) else {
+        guard let id = request.parameters.get(idParam, as: UUID.self) else {
             throw Abort(.internalServerError, reason: "Failed to extract {\(idParam)} parameter")
         }
         
-        return AreasController.getAreas(id: id)
+        return try await AreasController.getAreas(id: id, using: request.db)
     }
     .description("Returns area info for {\(idParam)}.")
 }

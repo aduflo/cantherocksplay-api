@@ -6,7 +6,6 @@
 //
 
 import Vapor
-import WCTRPCommon
 
 protocol AWServicing {
     ///
@@ -15,43 +14,40 @@ protocol AWServicing {
     static var apiKey: String { get }
     
     ///
-    var client: Client { get }
-    
+    func getGeopositionSearchResponse(latitude: String, longitude: String) async throws -> AWGeopositionSearchDataResponse
     ///
-    func getGeopositionSearchData(coordinate: Coordinate) async throws -> AWGeopositionSearchDataResponse
+    func getForecasts1DayData(locationKey: String) async throws -> Data
     ///
-    func getForecasts1DayData(locationKey: String) async throws -> AWForecasts1DayDataResponse
-    ///
-    func getHistorical24HrData(locationKey: String) async throws -> AWHistorical24HrDataResponse
+    func getHistorical24HrData(locationKey: String) async throws -> Data
 }
 
-struct AWService: AWServicing {
-    static let host = "dataservice.accuweather.com"
-    static let apiKey = Environment.get("AW_API_KEY") ?? ""
-    
+struct AWService {
     let client: Client
 }
 
-extension AWService {
-    func getGeopositionSearchData(coordinate: Coordinate) async throws -> AWGeopositionSearchDataResponse {
+extension AWService: AWServicing {
+    static let host = "dataservice.accuweather.com"
+    static let apiKey = Environment.get("AW_API_KEY") ?? ""
+    
+    func getGeopositionSearchResponse(latitude: String, longitude: String) async throws -> AWGeopositionSearchDataResponse {
         let path = "locations".pathed("v1", "cities", "geoposition", "search")
-        let query = "apikey=\(Self.apiKey)&q=\(coordinate.latitude)%2C\(coordinate.longitude)"
+        let query = "apikey=\(Self.apiKey)&q=\(latitude)%2C\(longitude)"
         let response = try await response(path: path, query: query)
         return try response.content.decode(AWGeopositionSearchDataResponse.self)
     }
     
-    func getForecasts1DayData(locationKey: String) async throws -> AWForecasts1DayDataResponse {
+    func getForecasts1DayData(locationKey: String) async throws -> Data {
         let path = "forecasts".pathed("v1", "daily", "1day", locationKey)
         let query = "apikey=\(Self.apiKey)&details=true"
         let response = try await response(path: path, query: query)
-        return try response.content.decode(AWForecasts1DayDataResponse.self)
+        return try getData(from: response)
     }
     
-    func getHistorical24HrData(locationKey: String) async throws -> AWHistorical24HrDataResponse {
+    func getHistorical24HrData(locationKey: String) async throws -> Data {
         let path = "currentconditions".pathed("v1", locationKey, "historical", "24")
         let query = "apikey=\(Self.apiKey)&details=true"
         let response = try await response(path: path, query: query)
-        return try response.content.decode(AWHistorical24HrDataResponse.self)
+        return try getData(from: response)
     }
 }
 
@@ -62,5 +58,15 @@ extension AWService {
                       path: path,
                       query: query)
         return try await client.get(uri)
+    }
+    
+    func getData(from clientResponse: ClientResponse) throws -> Data {
+        guard let body = clientResponse.body,
+              let data = body.getData(at: body.readerIndex, length: body.readableBytes)
+        else {
+            throw Abort(.internalServerError, reason: "Couldn't get data from clientResponse")
+        }
+        
+        return data
     }
 }

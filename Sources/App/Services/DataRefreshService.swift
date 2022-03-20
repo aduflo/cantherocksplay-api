@@ -7,39 +7,69 @@
 
 import FluentKit
 import Vapor
-import WCTRPCommon
 
 protocol DataRefreshServicing {
     ///
-    static func refreshWeatherData(for areas: Areas, using client: Client, _ dataBase: Database) async throws
+    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws
+    ///
+    func refreshWeatherData(for areaModel: AreaModel, using database: Database) async throws
 }
 
-struct DataRefreshService: DataRefreshServicing {
-    static func refreshWeatherData(for areas: Areas, using client: Client, _ database: Database) async throws {
-        // TODO: fully implement :)
-        /* What's this do?
-         per iteration:
-         - fetch geoData
-         - fetch forecasts1DayData + fetch object associated with area.id in respective table
-            - once both collected, replace object with latest result
-         - fetch historical24HrData + fetch collection associated with area.id in respective table
-             - once both collected, add latest result to collection
-                 - if collection exceeds 7, trim to 7 (should hold onto 7? why not just 3?)
-         */
-        
-//        let awService = AWService(client: client)
-//        for area in areas {
-//            let geoData = try await awService.getGeopositionSearchData(coordinate: area.coordinate)
-//            async let forecasts1DayData = awService.getForecasts1DayData(locationKey: geoData.locationKey)
-//            async let historical24HrData = awService.getHistorical24HrData(locationKey: geoData.locationKey)
-//            _ = try await (forecasts1DayData, historical24HrData)
-//        }
+// TODO: needs testing... seems to be failing. could be due to api or logic
+// TODO: maybe build a collection that holds success / failures (and failure errors unhidden)
+struct DataRefreshService {
+    let awService: AWServicing
+    
+    init(client: Client) {
+        self.awService = AWService(client: client)
+    }
+}
+
+extension DataRefreshService: DataRefreshServicing {
+    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws {
+        for areaModel in areaModels {
+            // TODO: determine if optional trying is appropriate. should an entire batch of updates fail for 1 failed area?
+            try? await refreshWeatherData(for: areaModel, using: database)
+        }
     }
     
-//    static func refreshWeatherData(for area: Area, using awService: AWService) async throws {
-//        let geoData = try await awService.getGeopositionSearchData(coordinate: area.coordinate)
-//        async let forecasts1DayData = awService.getForecasts1DayData(locationKey: geoData.locationKey)
-//        async let historical24HrData = awService.getHistorical24HrData(locationKey: geoData.locationKey)
-//        _ = try await (forecasts1DayData, historical24HrData)
-//    }
+    func refreshWeatherData(for areaModel: AreaModel, using database: Database) async throws {
+        do {
+            try await database.transaction { database in
+                let geoData = try await awService.getGeopositionSearchResponse(latitude: areaModel.latitude,
+                                                                               longitude: areaModel.longitude)
+                try await refreshTodaysForecast(for: areaModel, using: geoData, database)
+                try await refreshWeatherHistory(for: areaModel, using: geoData, database)
+            }
+        } catch {
+            let areaId = String(describing: areaModel.id!)
+            let reason = "Encountered error while refreshing weather data for areaModel (ID: \(areaId))"
+            throw Abort(.internalServerError, reason: reason)
+        }
+    }
+}
+
+extension DataRefreshService {
+    func refreshTodaysForecast(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
+        guard let todaysForecast = try await areaModel.$todaysForecast.get(on: database) else {
+            throw Abort(.internalServerError, reason: "Failed to get todaysForecast")
+        }
+        
+        let forecasts1DayData = try await awService.getForecasts1DayData(locationKey: geoData.locationKey)
+        todaysForecast.forecast = forecasts1DayData
+        try await todaysForecast.update(on: database)
+    }
+    
+    func refreshWeatherHistory(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
+        guard let weatherHistory = try await areaModel.$weatherHistory.get(on: database) else {
+            throw Abort(.internalServerError, reason: "Failed to get weatherHistory")
+        }
+        
+        let historical24HrData = try await awService.getHistorical24HrData(locationKey: geoData.locationKey)
+        weatherHistory.dailyHistories.insert(historical24HrData, at: 0)
+        if weatherHistory.dailyHistories.count > 7 {
+            weatherHistory.dailyHistories.removeFirst()
+        }
+        try await weatherHistory.update(on: database)
+    }
 }

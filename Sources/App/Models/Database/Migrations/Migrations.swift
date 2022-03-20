@@ -9,7 +9,10 @@ import FluentKit
 
 struct Migrations: AsyncMigration {
     let migrations: [AsyncMigration] = [
+        ZoneMigration(),
         AreaMigration(),
+        TodaysForecastMigration(),
+        WeatherHistoryMigration(),
     ]
     
     func prepare(on database: Database) async throws {

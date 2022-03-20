@@ -8,36 +8,37 @@
 import FluentKit
 import Vapor
 import WCTRPCommon
+import Foundation
 
 protocol AreasControlling {
     /// Returns list of supported areas.
-    static func getAreas(using request: Request) async throws -> AreasResponse
+    static func getAreas(using database: Database) async throws -> AreasResponse
     /// Returns area info for associated id.
-    static func getAreas(id: String) -> AreasByIdResponse
+    static func getAreas(id: UUID, using database: Database) async throws -> AreasByIdResponse
 }
 
 struct AreasController: AreasControlling {
-    static func getAreas(using request: Request) async throws -> AreasResponse {
+    static func getAreas(using database: Database) async throws -> AreasResponse {
         do {
-            let areas = try await AreaModel.query(on: request.db).all().map { model in
-                return Area(
-                    id: model.id!.uuidString,
-                    name: model.name,
-                    coordinate: Coordinate(
-                        latitude: model.latitude,
-                        longitude: model.longitude
-                    ),
-                    zone: model.zone
-                )
-            }
+            let areas = try await AreaModel
+                .query(on: database)
+                .all()
+                .map { Area(model: $0) }
             return AreasResponse(areas: areas)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to access database")
         }
     }
     
-    static func getAreas(id: String) -> AreasByIdResponse {
+    static func getAreas(id: UUID, using database: Database) async throws -> AreasByIdResponse {
         // TODO: implement :)
-        return .init(id: id)
+//        guard let areaModel = try await AreaModel.find(id, on: database) else {
+//            throw Abort(.notFound)
+//        }
+//        let history = try await areaModel.$weatherHistory.get(on: database)!
+//        
+//        let historyResponseObject = try JSONDecoder().decode(AWHistorical24HrDataResponse.self, from: history.dailyHistories[1])
+//        let jsonString = historyResponseObject.toJSONString()!
+        return .init(id: id, jsonString: "jsonString")
     }
 }

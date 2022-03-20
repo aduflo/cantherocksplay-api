@@ -16,14 +16,14 @@ protocol V1Controlling {
 
 struct V1Controller: V1Controlling {
     static func getHealth(using app: Application) async throws -> V1HealthResponse {
-        // TODO: proper health check
-        /*
-         to check:
-         - db is configured
-         - tables exist
-         */
-        guard app.databases.ids().contains(.psql), try await AreaModel.query(on: app.db).count() == 15 else {
-            return .init(message: "The rocks cannot play right now :(")
+        guard let areaCount = try? await AreaModel.query(on: app.db).count(),
+              areaCount == 15,
+              let todaysForecastCount = try? await TodaysForecastModel.query(on: app.db).count(),
+              todaysForecastCount == 15,
+              let weatherHistoryCount = try? await WeatherHistoryModel.query(on: app.db).count(),
+              weatherHistoryCount == 15
+        else {
+            return .init(message: "The rocks are resting :(")
         }
         
         return .init(message: "The rocks can play :)")

@@ -10,6 +10,8 @@ import FluentKit
 struct Seeds: AsyncMigration {
     let seeds: [AsyncMigration] = [
         AreaSeed(),
+        TodaysForecastSeed(),
+        WeatherHistorySeed(),
     ]
     
     func prepare(on database: Database) async throws {
