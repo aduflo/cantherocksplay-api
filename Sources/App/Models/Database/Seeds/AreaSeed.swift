@@ -102,6 +102,12 @@ struct AreaSeed: AsyncMigration {
                 longitude: "-85.38799535185372",
                 zone: .eastern
             ),
+            AreaModel(
+                name: "Stoney Point",
+                latitude: "34.27069173711605",
+                longitude: "-118.60373755315237",
+                zone: .pacific
+            ),
         ] {
             try await areaModel.create(on: database)
         }

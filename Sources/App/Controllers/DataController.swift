@@ -19,8 +19,8 @@ protocol DataControlling {
 struct DataController: DataControlling {
     static func getRefresh(using request: Request) async throws -> DataRefreshResponse {
         let areas = try await AreaModel.query(on: request.db).all()
-        try await DataRefreshService(client: request.client).refreshWeatherData(for: areas, using: request.db)
-        return .init()
+        let report = try await DataRefreshService(client: request.client).refreshWeatherData(for: areas, using: request.db)
+        return .init(report: report)
     }
     
     static func getRefresh(zone: Zone, using request: Request) async throws -> DataRefreshByZoneResponse {
@@ -28,7 +28,7 @@ struct DataController: DataControlling {
             .query(on: request.db)
             .filter(\.$zone == zone)
             .all()
-        try await DataRefreshService(client: request.client).refreshWeatherData(for: areas, using: request.db)
-        return .init()
+        let report = try await DataRefreshService(client: request.client).refreshWeatherData(for: areas, using: request.db)
+        return .init(report: report)
     }
 }

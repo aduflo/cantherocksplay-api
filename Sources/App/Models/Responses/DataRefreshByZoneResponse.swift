@@ -7,4 +7,6 @@
 
 import Vapor
 
-struct DataRefreshByZoneResponse: Content {}
+struct DataRefreshByZoneResponse: Content {
+    let report: DataRefreshReport
+}

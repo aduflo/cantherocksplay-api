@@ -7,4 +7,6 @@
 
 import Vapor
 
-struct DataRefreshResponse: Content {}
+struct DataRefreshResponse: Content {
+    let report: DataRefreshReport
+}
