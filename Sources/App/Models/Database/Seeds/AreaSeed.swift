@@ -5,8 +5,8 @@
 //  Created by Adam Duflo on 3/14/22.
 //
 
-import FluentKit
 import CTRPCommon
+import FluentKit
 
 struct AreaSeed: AsyncMigration {
     func prepare(on database: Database) async throws {

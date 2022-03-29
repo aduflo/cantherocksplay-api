@@ -5,9 +5,9 @@
 //  Created by Adam Duflo on 1/15/22.
 //
 
+import CTRPCommon
 import Fluent
 import Vapor
-import CTRPCommon
 
 protocol V1Controlling {
     /// Returns health report.

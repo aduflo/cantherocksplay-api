@@ -5,8 +5,9 @@
 //  Created by Adam Duflo on 3/13/22.
 //
 
-import FluentKit
 import CTRPCommon
+import FluentKit
+import Foundation
 
 final class AreaModel: Model {
     static let schema = "areas"

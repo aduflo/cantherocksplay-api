@@ -5,10 +5,10 @@
 //  Created by Adam Duflo on 1/15/22.
 //
 
-import FluentKit
-import Vapor
 import CTRPCommon
+import FluentKit
 import Foundation
+import Vapor
 
 protocol AreasControlling {
     /// Returns list of supported areas.

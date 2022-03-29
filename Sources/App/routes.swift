@@ -1,5 +1,5 @@
-import Vapor
 import CTRPCommon
+import Vapor
 
 func routes(_ app: Application) throws {
     apiRoute(app)
