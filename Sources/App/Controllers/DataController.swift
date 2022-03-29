@@ -7,7 +7,7 @@
 
 import Fluent
 import Vapor
-import WCTRPCommon
+import CTRPCommon
 
 protocol DataControlling {
     ///

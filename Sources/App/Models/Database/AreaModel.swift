@@ -6,7 +6,7 @@
 //
 
 import FluentKit
-import WCTRPCommon
+import CTRPCommon
 
 final class AreaModel: Model {
     static let schema = "areas"

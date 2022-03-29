@@ -7,7 +7,7 @@
 
 import FluentKit
 import Vapor
-import WCTRPCommon
+import CTRPCommon
 import Foundation
 
 protocol AreasControlling {

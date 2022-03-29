@@ -29,6 +29,15 @@
         }
       },
       {
+        "package": "CTRPCommon",
+        "repositoryURL": "https://github.com/aduflo/CTRPCommon",
+        "state": {
+          "branch": "main",
+          "revision": "5ef2f57898f9742052884cf74b1b5284155b0dc5",
+          "version": null
+        }
+      },
+      {
         "package": "fluent",
         "repositoryURL": "https://github.com/vapor/fluent",
         "state": {
@@ -188,15 +197,6 @@
           "branch": null,
           "revision": "88901368be090e69077418c36d17552e145ddd6e",
           "version": "4.54.1"
-        }
-      },
-      {
-        "package": "WCTRPCommon",
-        "repositoryURL": "https://github.com/aduflo/WCTRPCommon",
-        "state": {
-          "branch": "main",
-          "revision": "ecd98f4d940e3e26214714cbeca1112bb00c25cb",
-          "version": null
         }
       },
       {

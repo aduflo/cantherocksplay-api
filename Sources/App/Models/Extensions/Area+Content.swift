@@ -6,6 +6,6 @@
 //
 
 import Vapor
-import WCTRPCommon
+import CTRPCommon
 
 extension Area: Content {}

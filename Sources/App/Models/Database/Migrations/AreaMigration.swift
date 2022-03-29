@@ -6,7 +6,7 @@
 //
 
 import FluentKit
-import WCTRPCommon
+import CTRPCommon
 
 struct AreaMigration: AsyncMigration {
     fileprivate let schema = AreaModel.schema

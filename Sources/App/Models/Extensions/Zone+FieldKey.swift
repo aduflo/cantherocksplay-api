@@ -6,7 +6,7 @@
 //
 
 import FluentKit
-import WCTRPCommon
+import CTRPCommon
 
 extension Zone {
     static let fieldKey: FieldKey = "zone"

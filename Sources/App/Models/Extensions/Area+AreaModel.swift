@@ -5,7 +5,7 @@
 //  Created by Adam Duflo on 3/15/22.
 //
 
-import WCTRPCommon
+import CTRPCommon
 
 extension Area {
     init(model: AreaModel) {

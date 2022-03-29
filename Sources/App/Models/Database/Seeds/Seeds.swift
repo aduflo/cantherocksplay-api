@@ -1,6 +1,6 @@
 //
 //  Seeds.swift
-//  whencantherocksplay-api
+//  cantherocksplay-api
 //
 //  Created by Adam Duflo on 3/14/22.
 //

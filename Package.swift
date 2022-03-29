@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "whencantherocksplay-api",
+    name: "cantherocksplay-api",
     platforms: [
         .macOS(.v12)
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
-        .package(url: "https://github.com/aduflo/WCTRPCommon", .branch("main")),
+        .package(url: "https://github.com/aduflo/CTRPCommon", .branch("main")),
         .package(url: "https://github.com/vapor/fluent", .upToNextMajor(from: "4.0.0")),
         .package(url: "https://github.com/vapor/fluent-postgres-driver", .upToNextMajor(from: "2.0.0")),
     ],
@@ -17,7 +17,7 @@ let package = Package(
             name: "App",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
-                .product(name: "WCTRPCommon", package: "WCTRPCommon"),
+                .product(name: "CTRPCommon", package: "CTRPCommon"),
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             ],

@@ -49,6 +49,7 @@ extension DataRefreshService {
             throw Abort(.internalServerError, reason: "Failed to get todaysForecast from database")
         }
         
+        // TODO: determine if wanting 5day forecast instead of 1 day (cause is supported by free api); or is that expanding scope unnecessarily?
         let forecasts1DayData = try await awService.getForecasts1DayData(locationKey: geoData.locationKey)
         todaysForecast.forecast = forecasts1DayData
         try await todaysForecast.update(on: database)

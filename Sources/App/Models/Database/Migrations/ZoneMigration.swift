@@ -6,7 +6,7 @@
 //
 
 import FluentKit
-import WCTRPCommon
+import CTRPCommon
 
 struct ZoneMigration: AsyncMigration {
     fileprivate let fieldKey = String(describing: Zone.fieldKey)

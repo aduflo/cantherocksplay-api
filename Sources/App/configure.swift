@@ -1,7 +1,7 @@
 import Fluent
 import FluentPostgresDriver
 import Vapor
-import WCTRPCommon
+import CTRPCommon
 
 // configures your application
 public func configure(_ app: Application) throws {
