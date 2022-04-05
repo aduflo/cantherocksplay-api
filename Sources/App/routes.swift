@@ -23,7 +23,6 @@ fileprivate func v1Route(addedTo routesBuilder: RoutesBuilder) {
     .description("Returns health report.")
     
     areasRoute(addedTo: v1Route)
-    dataRoute(addedTo: v1Route)
 }
 
 fileprivate func areasRoute(addedTo routesBuilder: RoutesBuilder) {
@@ -46,34 +45,4 @@ fileprivate func areasRoute(addedTo routesBuilder: RoutesBuilder) {
         return try await AreasController.getAreas(id: id, using: request.db)
     }
     .description("Returns area info for {\(idParam)}.")
-}
-
-fileprivate func dataRoute(addedTo routesBuilder: RoutesBuilder) {
-    // MARK: /data
-    let dataRoute = routesBuilder.grouped(DataMiddleware()).grouped("data")
-    
-    // MARK: /refresh
-    let refreshRoute = dataRoute.grouped("refresh")
-    
-    // MARK: GET
-    refreshRoute.get { request -> DataRefreshResponse in
-        return try await DataController.getRefresh(using: request)
-    }
-    .description("Returns completion status of data refresh task for all zones.")
-    
-    // MARK: GET /:zone
-    let zoneParam = "zone"
-    refreshRoute.get(":\(zoneParam)") { request -> DataRefreshByZoneResponse in
-        guard let zoneValue = request.parameters.get(zoneParam) else {
-            throw Abort(.internalServerError, reason: "Failed to extract {\(zoneParam)} parameter")
-        }
-        
-        guard let zone = Zone(rawValue: zoneValue) else {
-            let validValues = Zone.allCases.map({ $0.rawValue }).joined(separator: ", ")
-            throw Abort(.notFound, reason: "Invalid value for {\(zoneParam)}. Accepted values: \(validValues)")
-        }
-        
-        return try await DataController.getRefresh(zone: zone, using: request)
-    }
-    .description("Returns completion status of data refresh task for {\(zoneParam)}.")
 }

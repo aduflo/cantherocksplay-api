@@ -10,10 +10,11 @@ import Vapor
 
 protocol DataRefreshServicing {
     ///
-    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws -> DataRefreshReport
+    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws
 }
 
 struct DataRefreshService {
+    let maxCount = 7
     let awService: AWServicing
     
     init(client: Client) {
@@ -22,9 +23,12 @@ struct DataRefreshService {
 }
 
 extension DataRefreshService: DataRefreshServicing {
-    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws -> DataRefreshReport {
+    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws {
+        // prepare report data
         var successes: [String] = []
         var failures: [String: String] = [:]
+
+        // refresh areas
         for areaModel in areaModels {
             let areaId = String(describing: areaModel.id!)
             do {
@@ -39,32 +43,58 @@ extension DataRefreshService: DataRefreshServicing {
                 failures[areaId] = String(describing: error)
             }
         }
-        return .init(successes: successes, failures: failures)
+
+        // save report
+        try await DataRefreshReportModel(successes: successes, failures: failures).save(on: database)
+
+        // trim reports if needed
+        try await trimReportsIfNeeded(using: database)
     }
 }
 
 extension DataRefreshService {
-    func refreshTodaysForecast(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
+    fileprivate func refreshTodaysForecast(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
         guard let todaysForecast = try await areaModel.$todaysForecast.get(on: database) else {
             throw Abort(.internalServerError, reason: "Failed to get todaysForecast from database")
         }
-        
-        // TODO: determine if wanting 5day forecast instead of 1 day (cause is supported by free api); or is that expanding scope unnecessarily?
+
         let forecasts1DayData = try await awService.getForecasts1DayData(locationKey: geoData.locationKey)
         todaysForecast.forecast = forecasts1DayData
         try await todaysForecast.update(on: database)
     }
     
-    func refreshWeatherHistory(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
+    fileprivate func refreshWeatherHistory(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
         guard let weatherHistory = try await areaModel.$weatherHistory.get(on: database) else {
             throw Abort(.internalServerError, reason: "Failed to get weatherHistory from database")
         }
         
         let historical24HrData = try await awService.getHistorical24HrData(locationKey: geoData.locationKey)
-        weatherHistory.dailyHistories.insert(historical24HrData, at: 0)
-        if weatherHistory.dailyHistories.count > 7 {
-            weatherHistory.dailyHistories.removeLast()
+
+        var dailyHistories = weatherHistory.dailyHistories
+        dailyHistories.insert(historical24HrData, at: 0)
+        while dailyHistories.count > maxCount {
+            dailyHistories.removeLast()
         }
+        weatherHistory.dailyHistories = dailyHistories
         try await weatherHistory.update(on: database)
+    }
+
+    fileprivate func trimReportsIfNeeded(using database: Database) async throws {
+        let sortedReports = try await DataRefreshReportModel
+            .query(on: database)
+            .sort(\.$createdAt, .descending)
+            .all()
+
+        guard sortedReports.count > maxCount else { return }
+
+        try await database.transaction { database in
+            for (i, report) in sortedReports.enumerated() {
+                if i < maxCount {
+                    continue
+                }
+
+                try await report.delete(on: database)
+            }
+        }
     }
 }

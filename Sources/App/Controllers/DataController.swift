@@ -11,24 +11,15 @@ import Vapor
 
 protocol DataControlling {
     ///
-    static func getRefresh(using request: Request) async throws -> DataRefreshResponse
-    ///
-    static func getRefresh(zone: Zone, using request: Request) async throws -> DataRefreshByZoneResponse
+    static func refreshWeatherData(for zone: Zone, using app: Application) async throws
 }
 
 struct DataController: DataControlling {
-    static func getRefresh(using request: Request) async throws -> DataRefreshResponse {
-        let areas = try await AreaModel.query(on: request.db).all()
-        let report = try await DataRefreshService(client: request.client).refreshWeatherData(for: areas, using: request.db)
-        return .init(report: report)
-    }
-    
-    static func getRefresh(zone: Zone, using request: Request) async throws -> DataRefreshByZoneResponse {
+    static func refreshWeatherData(for zone: Zone, using app: Application) async throws {
         let areas = try await AreaModel
-            .query(on: request.db)
+            .query(on: app.db)
             .filter(\.$zone == zone)
             .all()
-        let report = try await DataRefreshService(client: request.client).refreshWeatherData(for: areas, using: request.db)
-        return .init(report: report)
+        return try await DataRefreshService(client: app.client).refreshWeatherData(for: areas, using: app.db)
     }
 }

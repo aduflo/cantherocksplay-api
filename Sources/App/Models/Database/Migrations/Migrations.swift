@@ -13,6 +13,7 @@ struct Migrations: AsyncMigration {
         AreaMigration(),
         TodaysForecastMigration(),
         WeatherHistoryMigration(),
+        DataRefreshReportMigration(),
     ]
     
     func prepare(on database: Database) async throws {

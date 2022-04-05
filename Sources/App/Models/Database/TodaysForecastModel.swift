@@ -19,7 +19,7 @@ final class TodaysForecastModel: Model {
     // MARK: Fields
     
     @ID(key: .id)
-    public var id: UUID?
+    var id: UUID?
     
     @Field(key: FieldKeys.forecast)
     var forecast: Data

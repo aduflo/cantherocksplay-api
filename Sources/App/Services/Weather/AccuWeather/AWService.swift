@@ -52,7 +52,7 @@ extension AWService: AWServicing {
 }
 
 extension AWService {
-    func response(path: String, query: String) async throws -> ClientResponse {
+    fileprivate func response(path: String, query: String) async throws -> ClientResponse {
         let uri = URI(scheme: .http,
                       host: Self.host,
                       path: path,
@@ -60,7 +60,7 @@ extension AWService {
         return try await client.get(uri)
     }
     
-    func getData(from clientResponse: ClientResponse) throws -> Data {
+    fileprivate func getData(from clientResponse: ClientResponse) throws -> Data {
         guard let body = clientResponse.body,
               let data = body.getData(at: body.readerIndex, length: body.readableBytes)
         else {
