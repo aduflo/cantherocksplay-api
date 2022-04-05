@@ -41,30 +41,19 @@ fileprivate func configureRedis(using app: Application) throws {
 }
 
 fileprivate func scheduleJobs(using app: Application) {
-    let hoursFromGMT = TimeZone.current.secondsFromGMT()/60/60
-    let dstOffsetInHours = Int(TimeZone.current.daylightSavingTimeOffset()/60/60)
-    let hoursFromGMTInStandardTime = hoursFromGMT + -dstOffsetInHours
-    let hourZoneTuples: [(hour: Int, zone: Zone)]?
-    switch hoursFromGMTInStandardTime {
-    case -5: // Eastern Standard Time
-        hourZoneTuples = [(1, .eastern), (2, .central), (3, .mountain), (4, .pacific)]
-    case -6: // Central Standard Time
-        hourZoneTuples = [(0, .eastern), (1, .central), (2, .mountain), (3, .pacific)]
-    case -7: // Mountain Standard Time
-        hourZoneTuples = [(23, .eastern), (0, .central), (1, .mountain), (2, .pacific)]
-    case -8: // Pacific Standard Time
-        hourZoneTuples = [(22, .eastern), (23, .central), (0, .mountain), (1, .pacific)]
-    default:
-        hourZoneTuples = nil
-    }
-    
-    guard let hourZoneTuples = hourZoneTuples else {
-        return
-    }
-
+    // server time is in UTC
+    // hour value equates to 12am in Standard Time for respective Zone
+    // scheduling on the half hour
+    // job would occur between 12:30-1:30am depending on daylight savings offset
+    let hourZoneTuples: [(hour: Int, zone: Zone)] = [
+        (5, Zone.eastern),
+        (6, Zone.central),
+        (7, Zone.mountain),
+        (8, Zone.pacific),
+    ]
     for tuple in hourZoneTuples {
         app.queues.schedule(DataRefreshJob(zone: tuple.zone))
             .daily()
-            .at(.init(integerLiteral: tuple.hour), 0)
+            .at(.init(integerLiteral: tuple.hour), 30)
     }
 }
