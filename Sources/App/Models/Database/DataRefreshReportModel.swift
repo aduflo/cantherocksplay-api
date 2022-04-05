@@ -6,6 +6,7 @@
 //
 
 import FluentKit
+import Foundation
 
 final class DataRefreshReportModel: Model {
     static let schema = "data_refresh_reports"

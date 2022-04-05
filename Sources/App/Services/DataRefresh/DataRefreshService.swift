@@ -95,8 +95,8 @@ extension DataRefreshService {
         guard sortedReports.count > maxReportsCount else { return }
 
         try await database.transaction { database in
-            for (i, report) in sortedReports.enumerated() {
-                if i < maxReportsCount {
+            for (idx, report) in sortedReports.enumerated() {
+                if idx < maxReportsCount {
                     continue
                 }
 
