@@ -9,9 +9,9 @@ import Vapor
 
 protocol AWServicing {
     ///
-    static var host: String { get }
+    var host: String { get }
     ///
-    static var apiKey: String { get }
+    var apiKey: String { get }
     
     ///
     func getGeopositionSearchResponse(latitude: String, longitude: String) async throws -> AWGeopositionSearchDataResponse
@@ -26,26 +26,26 @@ struct AWService {
 }
 
 extension AWService: AWServicing {
-    static let host = "dataservice.accuweather.com"
-    static let apiKey = Environment.get("AW_API_KEY") ?? ""
+    var host: String { "dataservice.accuweather.com" }
+    var apiKey: String { Environment.get("AW_API_KEY") ?? "" }
     
     func getGeopositionSearchResponse(latitude: String, longitude: String) async throws -> AWGeopositionSearchDataResponse {
         let path = "locations".pathed("v1", "cities", "geoposition", "search")
-        let query = "apikey=\(Self.apiKey)&q=\(latitude)%2C\(longitude)"
+        let query = "apikey=\(apiKey)&q=\(latitude)%2C\(longitude)"
         let response = try await response(path: path, query: query)
         return try response.content.decode(AWGeopositionSearchDataResponse.self)
     }
     
     func getForecasts1DayData(locationKey: String) async throws -> Data {
         let path = "forecasts".pathed("v1", "daily", "1day", locationKey)
-        let query = "apikey=\(Self.apiKey)&details=true"
+        let query = "apikey=\(apiKey)&details=true"
         let response = try await response(path: path, query: query)
         return try getData(from: response)
     }
     
     func getHistorical24HrData(locationKey: String) async throws -> Data {
         let path = "currentconditions".pathed("v1", locationKey, "historical", "24")
-        let query = "apikey=\(Self.apiKey)&details=true"
+        let query = "apikey=\(apiKey)&details=true"
         let response = try await response(path: path, query: query)
         return try getData(from: response)
     }
@@ -54,7 +54,7 @@ extension AWService: AWServicing {
 extension AWService {
     fileprivate func response(path: String, query: String) async throws -> ClientResponse {
         let uri = URI(scheme: .http,
-                      host: Self.host,
+                      host: host,
                       path: path,
                       query: query)
         return try await client.get(uri)

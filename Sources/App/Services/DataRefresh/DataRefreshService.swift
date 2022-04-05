@@ -10,11 +10,15 @@ import Vapor
 
 protocol DataRefreshServicing {
     ///
+    var maxDailyHistoriesCount: Int { get }
+    ///
+    var maxReportsCount: Int { get }
+
+    ///
     func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws
 }
 
 struct DataRefreshService {
-    let maxCount = 7
     let awService: AWServicing
     
     init(client: Client) {
@@ -23,6 +27,9 @@ struct DataRefreshService {
 }
 
 extension DataRefreshService: DataRefreshServicing {
+    var maxDailyHistoriesCount: Int { 3 }
+    var maxReportsCount: Int { 7 }
+
     func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws {
         // prepare report data
         var successes: [String] = []
@@ -72,7 +79,7 @@ extension DataRefreshService {
 
         var dailyHistories = weatherHistory.dailyHistories
         dailyHistories.insert(historical24HrData, at: 0)
-        while dailyHistories.count > maxCount {
+        while dailyHistories.count > maxDailyHistoriesCount {
             dailyHistories.removeLast()
         }
         weatherHistory.dailyHistories = dailyHistories
@@ -85,11 +92,11 @@ extension DataRefreshService {
             .sort(\.$createdAt, .descending)
             .all()
 
-        guard sortedReports.count > maxCount else { return }
+        guard sortedReports.count > maxReportsCount else { return }
 
         try await database.transaction { database in
             for (i, report) in sortedReports.enumerated() {
-                if i < maxCount {
+                if i < maxReportsCount {
                     continue
                 }
 
