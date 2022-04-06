@@ -1,5 +1,6 @@
 import CTRPCommon
 import FluentPostgresDriver
+import Queues
 import QueuesRedisDriver
 import Vapor
 
@@ -45,7 +46,7 @@ fileprivate func scheduleJobs(using app: Application) {
     // hour value equates to 04:00 in Standard Time for respective Zone
     // scheduling on five minutes after the hour
     // job would occur between 04:05-05:05 local time (depending on daylight savings offset)
-    let hourZoneTuples: [(hour: Int, zone: Zone)] = [
+    let hourZoneTuples: [(hour: ScheduleBuilder.Hour24, zone: Zone)] = [
         (9, Zone.eastern),
         (10, Zone.central),
         (11, Zone.mountain),
@@ -54,6 +55,6 @@ fileprivate func scheduleJobs(using app: Application) {
     for tuple in hourZoneTuples {
         app.queues.schedule(DataRefreshJob(zone: tuple.zone))
             .daily()
-            .at(.init(integerLiteral: tuple.hour), 5)
+            .at(tuple.hour, 5)
     }
 }
