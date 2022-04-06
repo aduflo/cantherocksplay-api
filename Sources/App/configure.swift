@@ -42,18 +42,18 @@ fileprivate func configureRedis(using app: Application) throws {
 
 fileprivate func scheduleJobs(using app: Application) {
     // server time is in UTC
-    // hour value equates to 12am in Standard Time for respective Zone
-    // scheduling on the half hour
-    // job would occur between 12:30-1:30am depending on daylight savings offset
+    // hour value equates to 04:00 in Standard Time for respective Zone
+    // scheduling on five minutes after the hour
+    // job would occur between 04:05-05:05 local time (depending on daylight savings offset)
     let hourZoneTuples: [(hour: Int, zone: Zone)] = [
-        (5, Zone.eastern),
-        (6, Zone.central),
-        (7, Zone.mountain),
-        (8, Zone.pacific),
+        (9, Zone.eastern),
+        (10, Zone.central),
+        (11, Zone.mountain),
+        (12, Zone.pacific),
     ]
     for tuple in hourZoneTuples {
         app.queues.schedule(DataRefreshJob(zone: tuple.zone))
             .daily()
-            .at(.init(integerLiteral: tuple.hour), 30)
+            .at(.init(integerLiteral: tuple.hour), 5)
     }
 }

@@ -5,6 +5,7 @@
 //  Created by Adam Duflo on 2/25/22.
 //
 
+import CTRPCommon
 import FluentKit
 import Vapor
 
@@ -28,7 +29,7 @@ struct DataRefreshService {
 
 extension DataRefreshService: DataRefreshServicing {
     var maxDailyHistoriesCount: Int { 3 }
-    var maxReportsCount: Int { 7 }
+    var maxReportsCount: Int { 7 * Zone.allCases.count } // a weeks worth of scheduled jobs
 
     func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws {
         // prepare report data
@@ -92,6 +93,7 @@ extension DataRefreshService {
             .sort(\.$createdAt, .descending)
             .all()
 
+        let maxReportsCount = maxReportsCount
         guard sortedReports.count > maxReportsCount else { return }
 
         try await database.transaction { database in
