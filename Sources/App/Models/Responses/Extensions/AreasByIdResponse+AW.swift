@@ -21,7 +21,7 @@ extension AreasByIdResponse.Weather.Today.Temperature.Scale {
     }
 }
 
-extension AreasByIdResponse.Weather.Today.DayUnit.Percipitation.Kind {
+extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.Kind {
     public init?(awPrecipitationType: String?) {
         switch awPrecipitationType {
         case "Rain":
@@ -38,7 +38,7 @@ extension AreasByIdResponse.Weather.Today.DayUnit.Percipitation.Kind {
     }
 }
 
-extension AreasByIdResponse.Weather.Today.DayUnit.Percipitation.Intensity {
+extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.Intensity {
     public init?(awPrecipitationIntensity: String?) {
         switch awPrecipitationIntensity {
         case "Light":
@@ -53,7 +53,7 @@ extension AreasByIdResponse.Weather.Today.DayUnit.Percipitation.Intensity {
     }
 }
 
-extension AreasByIdResponse.Weather.Today.DayUnit.Percipitation.LengthUnit {
+extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.LengthUnit {
     public init?(awLengthUnit: String?) {
         switch awLengthUnit {
         case "in":
