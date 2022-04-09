@@ -85,17 +85,15 @@ fileprivate extension AreasController {
         let temperatureValueUnitType = weatherType.ValueUnit<AreasByIdResponse.Weather.Today.Temperature.Scale>.self
         let amountValueUnitType = weatherType.ValueUnit<AreasByIdResponse.Weather.Today.DayUnit.Precipitation.LengthUnit>.self
 
-        // TODO: check inputs !!!
-
-        let dfTemperature = dailyForecast.temperature
+        let awDfTemperature = dailyForecast.temperature
         let awDfDay = dailyForecast.day
         let awDfNight = dailyForecast.night
 
-        guard let dfTemperatureMaximumValue = dfTemperature.maximum?.value,
-              let dfTemperatureMaximumUnit = dfTemperature.maximum?.unit,
+        guard let dfTemperatureMaximumValue = awDfTemperature.maximum?.value,
+              let dfTemperatureMaximumUnit = awDfTemperature.maximum?.unit,
               let temperatureHighUnit = temperatureType.Scale.init(awScale: dfTemperatureMaximumUnit),
-              let dfTemperatureMinimumValue = dfTemperature.minimum?.value,
-              let dfTemperatureMinimumUnit = dfTemperature.minimum?.unit,
+              let dfTemperatureMinimumValue = awDfTemperature.minimum?.value,
+              let dfTemperatureMinimumUnit = awDfTemperature.minimum?.unit,
               let temperatureLowUnit = temperatureType.Scale.init(awScale: dfTemperatureMinimumUnit),
               let awDfDayPrecipitationProbability = awDfDay.precipitationProbability,
               let awDfDayTotalLiquidValue = awDfDay.totalLiquid?.value,
@@ -119,7 +117,6 @@ fileprivate extension AreasController {
                 unit: temperatureLowUnit
             )
         )
-
 
         let daytime = dayUnitType.init(
             message: awDfDay.shortPhrase,
