@@ -9,7 +9,7 @@ import Vapor
 
 struct AWForecasts1DayDataResponse: Content {
     let headline: Headline
-    let dailyForecasts: [DailyForecasts]
+    let dailyForecasts: [DailyForecast]
     
     enum CodingKeys: String, CodingKey {
         case headline = "Headline"
@@ -30,7 +30,7 @@ extension AWForecasts1DayDataResponse {
 }
 
 extension AWForecasts1DayDataResponse {
-    struct DailyForecasts: Content {
+    struct DailyForecast: Content {
         let temperature: Temperature
         let day: DayUnit
         let night: DayUnit
@@ -53,8 +53,8 @@ extension AWForecasts1DayDataResponse {
         
         struct DayUnit: Content {
             let hasPrecipitation: Bool
-            let precipitationType: String?
-            let precipitationIntensity: String?
+            let precipitationType: String? // nil if `precipitationProbability` is 0
+            let precipitationIntensity: String? // nil if `precipitationProbability` is 0
             let shortPhrase: String
             let longPhrase: String
             let precipitationProbability: Int?

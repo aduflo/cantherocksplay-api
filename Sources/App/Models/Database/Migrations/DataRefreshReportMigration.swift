@@ -7,21 +7,27 @@
 
 import FluentKit
 
-struct DataRefreshReportMigration: AsyncMigration {
-    fileprivate let schema = DataRefreshReportModel.schema
-    fileprivate let fieldKeys = DataRefreshReportModel.FieldKeys.self
-
-    func prepare(on database: Database) async throws {
-        try await database
-            .schema(schema)
-            .id()
-            .field(fieldKeys.createdAt, .datetime)
-            .field(fieldKeys.successes, .array(of: .string), .required)
-            .field(fieldKeys.failures, .dictionary(of: .string), .required)
-            .create()
+extension DataRefreshReportModel {
+    struct Migration {
+        private static let schema = DataRefreshReportModel.schema
+        private static let fieldKeys = DataRefreshReportModel.FieldKeys.self
     }
+}
 
-    func revert(on database: Database) async throws {
-        try await database.schema(schema).delete()
+extension DataRefreshReportModel.Migration {
+    struct Create: AsyncMigration {
+        func prepare(on database: Database) async throws {
+            try await database
+                .schema(schema)
+                .id()
+                .field(fieldKeys.createdAt, .datetime)
+                .field(fieldKeys.successes, .array(of: .string), .required)
+                .field(fieldKeys.failures, .dictionary(of: .string), .required)
+                .create()
+        }
+
+        func revert(on database: Database) async throws {
+            try await database.schema(schema).delete()
+        }
     }
 }

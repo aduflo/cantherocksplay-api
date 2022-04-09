@@ -31,7 +31,9 @@ fileprivate func configurePostgresql(using app: Application) {
 }
 
 fileprivate func addMigrations(using app: Application) {
-    app.migrations.add(Migrations(), Seeds())
+//    app.migrations.add(Migrations.Create())
+//    app.migrations.add(Seeds.Create())
+//    app.migrations.add(Migrations.AddUpdatedAtFieldToTodaysForecastAndWeatherHistory())
 //    app.logger.logLevel = .debug
 }
 

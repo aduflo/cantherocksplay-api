@@ -12,6 +12,7 @@ final class WeatherHistoryModel: Model {
     static let schema = "weather_histories"
     
     struct FieldKeys {
+        static let updatedAt: FieldKey = "updated_at"
         static let dailyHistories: FieldKey = "daily_histories"
         static let area: FieldKey = "area_id"
     }
@@ -20,6 +21,9 @@ final class WeatherHistoryModel: Model {
     
     @ID(key: .id)
     var id: UUID?
+
+    @Timestamp(key: FieldKeys.updatedAt, on: .update)
+    var updatedAt: Date?
     
     @Field(key: FieldKeys.dailyHistories)
     var dailyHistories: [Data]

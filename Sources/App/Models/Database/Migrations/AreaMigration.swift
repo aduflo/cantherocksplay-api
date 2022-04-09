@@ -8,23 +8,29 @@
 import CTRPCommon
 import FluentKit
 
-struct AreaMigration: AsyncMigration {
-    fileprivate let schema = AreaModel.schema
-    fileprivate let fieldKeys = AreaModel.FieldKeys.self
-    
-    func prepare(on database: Database) async throws {
-        let zoneDataType = try await database.enum(String(describing: fieldKeys.zone)).read()
-        try await database
-            .schema(schema)
-            .id()
-            .field(fieldKeys.name, .string, .required)
-            .field(fieldKeys.latitude, .string, .required)
-            .field(fieldKeys.longitude, .string, .required)
-            .field(fieldKeys.zone, zoneDataType, .required)
-            .create()
+extension AreaModel {
+    struct Migration {
+        private static let schema = AreaModel.schema
+        private static let fieldKeys = AreaModel.FieldKeys.self
     }
-    
-    func revert(on database: Database) async throws {
-        try await database.schema(schema).delete()
+}
+
+extension AreaModel.Migration {
+    struct Create: AsyncMigration {
+        func prepare(on database: Database) async throws {
+            let zoneDataType = try await database.enum(String(describing: fieldKeys.zone)).read()
+            try await database
+                .schema(schema)
+                .id()
+                .field(fieldKeys.name, .string, .required)
+                .field(fieldKeys.latitude, .string, .required)
+                .field(fieldKeys.longitude, .string, .required)
+                .field(fieldKeys.zone, zoneDataType, .required)
+                .create()
+        }
+
+        func revert(on database: Database) async throws {
+            try await database.schema(schema).delete()
+        }
     }
 }

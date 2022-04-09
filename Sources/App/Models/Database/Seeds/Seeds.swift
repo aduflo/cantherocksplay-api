@@ -7,22 +7,26 @@
 
 import FluentKit
 
-struct Seeds: AsyncMigration {
-    let seeds: [AsyncMigration] = [
-        AreaSeed(),
-        TodaysForecastSeed(),
-        WeatherHistorySeed(),
-    ]
-    
-    func prepare(on database: Database) async throws {
-        for seed in seeds {
-            try await seed.prepare(on: database)
+struct Seeds {}
+
+extension Seeds {
+    struct Create: AsyncMigration {
+        let seeds: [AsyncMigration] = [
+            AreaModel.Seed.Create(),
+            TodaysForecastModel.Seed.Create(),
+            WeatherHistoryModel.Seed.Create(),
+        ]
+
+        func prepare(on database: Database) async throws {
+            for seed in seeds {
+                try await seed.prepare(on: database)
+            }
         }
-    }
-    
-    func revert(on database: Database) async throws {
-        for seed in seeds.reversed() {
-            try await seed.revert(on: database)
+
+        func revert(on database: Database) async throws {
+            for seed in seeds.reversed() {
+                try await seed.revert(on: database)
+            }
         }
     }
 }

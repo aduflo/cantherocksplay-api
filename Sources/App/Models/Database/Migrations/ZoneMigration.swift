@@ -8,18 +8,24 @@
 import CTRPCommon
 import FluentKit
 
-struct ZoneMigration: AsyncMigration {
-    fileprivate let fieldKey = String(describing: Zone.fieldKey)
-    
-    func prepare(on database: Database) async throws {
-        let enumBuilder = database.enum(fieldKey)
-        for zoneCase in Zone.allCases {
-            _ = enumBuilder.case(zoneCase.rawValue)
-        }
-        _ = try await enumBuilder.create()
+extension Zone {
+    struct Migration {
+        private static let fieldKey = String(describing: Zone.fieldKey)
     }
-    
-    func revert(on database: Database) async throws {
-        try await database.enum(fieldKey).delete()
+}
+
+extension Zone.Migration {
+    struct Create: AsyncMigration {
+        func prepare(on database: Database) async throws {
+            let enumBuilder = database.enum(fieldKey)
+            for zoneCase in Zone.allCases {
+                _ = enumBuilder.case(zoneCase.rawValue)
+            }
+            _ = try await enumBuilder.create()
+        }
+
+        func revert(on database: Database) async throws {
+            try await database.enum(fieldKey).delete()
+        }
     }
 }

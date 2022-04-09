@@ -12,6 +12,7 @@ final class TodaysForecastModel: Model {
     static let schema = "todays_forecasts"
     
     struct FieldKeys {
+        static let updatedAt: FieldKey = "updated_at"
         static let forecast: FieldKey = "forecast"
         static let area: FieldKey = "area_id"
     }
@@ -20,6 +21,9 @@ final class TodaysForecastModel: Model {
     
     @ID(key: .id)
     var id: UUID?
+
+    @Timestamp(key: FieldKeys.updatedAt, on: .update)
+    var updatedAt: Date?
     
     @Field(key: FieldKeys.forecast)
     var forecast: Data

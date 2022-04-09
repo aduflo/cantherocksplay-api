@@ -60,8 +60,8 @@ extension DataRefreshService: DataRefreshServicing {
     }
 }
 
-extension DataRefreshService {
-    fileprivate func refreshTodaysForecast(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
+fileprivate extension DataRefreshService {
+    func refreshTodaysForecast(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
         guard let todaysForecast = try await areaModel.$todaysForecast.get(on: database) else {
             throw Abort(.internalServerError, reason: "Failed to get todaysForecast from database")
         }
@@ -71,7 +71,7 @@ extension DataRefreshService {
         try await todaysForecast.update(on: database)
     }
     
-    fileprivate func refreshWeatherHistory(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
+    func refreshWeatherHistory(for areaModel: AreaModel, using geoData: AWGeopositionSearchDataResponse, _ database: Database) async throws {
         guard let weatherHistory = try await areaModel.$weatherHistory.get(on: database) else {
             throw Abort(.internalServerError, reason: "Failed to get weatherHistory from database")
         }
@@ -87,7 +87,7 @@ extension DataRefreshService {
         try await weatherHistory.update(on: database)
     }
 
-    fileprivate func trimReportsIfNeeded(using database: Database) async throws {
+    func trimReportsIfNeeded(using database: Database) async throws {
         let sortedReports = try await DataRefreshReportModel
             .query(on: database)
             .sort(\.$createdAt, .descending)
