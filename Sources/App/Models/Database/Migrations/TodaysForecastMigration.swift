@@ -20,6 +20,7 @@ extension TodaysForecastModel.Migration {
             try await database
                 .schema(schema)
                 .id()
+                .field(fieldKeys.updatedAt, .datetime)
                 .field(fieldKeys.forecast, .data, .required)
                 .field(fieldKeys.area, .uuid, .required, .references(AreaModel.schema, .id))
                 .unique(on: fieldKeys.area)
@@ -28,24 +29,6 @@ extension TodaysForecastModel.Migration {
 
         func revert(on database: Database) async throws {
             try await database.schema(schema).delete()
-        }
-    }
-}
-
-extension TodaysForecastModel.Migration {
-    struct AddUpdatedAt: AsyncMigration {
-        func prepare(on database: Database) async throws {
-            try await database
-                .schema(schema)
-                .field(fieldKeys.updatedAt, .datetime)
-                .update()
-        }
-
-        func revert(on database: Database) async throws {
-            try await database
-                .schema(schema)
-                .deleteField(fieldKeys.updatedAt)
-                .update()
         }
     }
 }

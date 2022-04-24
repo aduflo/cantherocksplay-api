@@ -33,9 +33,6 @@ fileprivate func configurePostgresql(using app: Application) {
 fileprivate func addMigrations(using app: Application) {
 //    app.migrations.add(Migrations.Create())
 //    app.migrations.add(Seeds.Create())
-//    app.migrations.add(Migrations.AddUpdatedAtFieldToTodaysForecastAndWeatherHistory())
-//    app.migrations.add(Migrations.AddZoneAsOptionalFieldToDataRefreshReport())
-    app.migrations.add(Migrations.UpdateZoneAsRequiredFieldToDataRefreshReport())
 //    app.logger.logLevel = .debug
 }
 

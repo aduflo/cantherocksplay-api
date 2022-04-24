@@ -20,6 +20,7 @@ extension WeatherHistoryModel.Migration {
             try await database
                 .schema(schema)
                 .id()
+                .field(fieldKeys.updatedAt, .datetime)
                 .field(fieldKeys.dailyHistories, .array(of: .data), .required)
                 .field(fieldKeys.area, .uuid, .required, .references(AreaModel.schema, .id))
                 .unique(on: fieldKeys.area)
@@ -31,22 +32,3 @@ extension WeatherHistoryModel.Migration {
         }
     }
 }
-
-extension WeatherHistoryModel.Migration {
-    struct AddUpdatedAt: AsyncMigration {
-        func prepare(on database: Database) async throws {
-            try await database
-                .schema(schema)
-                .field(fieldKeys.updatedAt, .datetime)
-                .update()
-        }
-
-        func revert(on database: Database) async throws {
-            try await database
-                .schema(schema)
-                .deleteField(fieldKeys.updatedAt)
-                .update()
-        }
-    }
-}
-
