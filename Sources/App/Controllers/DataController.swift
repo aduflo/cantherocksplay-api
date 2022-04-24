@@ -16,10 +16,6 @@ protocol DataControlling {
 
 struct DataController: DataControlling {
     static func refreshWeatherData(for zone: Zone, using app: Application) async throws {
-        let areas = try await AreaModel
-            .query(on: app.db)
-            .filter(\.$zone == zone)
-            .all()
-        return try await DataRefreshService(client: app.client).refreshWeatherData(for: areas, using: app.db)
+        return try await DataRefreshService(client: app.client).refreshWeatherData(for: zone, using: app.db)
     }
 }

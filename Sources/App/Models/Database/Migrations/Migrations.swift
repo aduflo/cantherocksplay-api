@@ -54,3 +54,43 @@ extension Migrations {
         }
     }
 }
+
+extension Migrations {
+    struct AddZoneAsOptionalFieldToDataRefreshReport: AsyncMigration {
+        let migrations: [AsyncMigration] = [
+            DataRefreshReportModel.Migration.AddZoneAsOptionalField()
+        ]
+
+        func prepare(on database: Database) async throws {
+            for migration in migrations {
+                try await migration.prepare(on: database)
+            }
+        }
+
+        func revert(on database: Database) async throws {
+            for migration in migrations.reversed() {
+                try await migration.revert(on: database)
+            }
+        }
+    }
+}
+
+extension Migrations {
+    struct UpdateZoneAsRequiredFieldToDataRefreshReport: AsyncMigration {
+        let migrations: [AsyncMigration] = [
+            DataRefreshReportModel.Migration.UpdateZoneAsRequiredField()
+        ]
+
+        func prepare(on database: Database) async throws {
+            for migration in migrations {
+                try await migration.prepare(on: database)
+            }
+        }
+
+        func revert(on database: Database) async throws {
+            for migration in migrations.reversed() {
+                try await migration.revert(on: database)
+            }
+        }
+    }
+}

@@ -16,7 +16,7 @@ protocol DataRefreshServicing {
     var maxReportsCount: Int { get }
 
     ///
-    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws
+    func refreshWeatherData(for zone: Zone, using database: Database) async throws
 }
 
 struct DataRefreshService {
@@ -31,12 +31,18 @@ extension DataRefreshService: DataRefreshServicing {
     var maxDailyHistoriesCount: Int { 3 }
     var maxReportsCount: Int { 7 * Zone.allCases.count } // a weeks worth of scheduled jobs
 
-    func refreshWeatherData(for areaModels: [AreaModel], using database: Database) async throws {
+    func refreshWeatherData(for zone: Zone, using database: Database) async throws {
         // prepare report data
         var successes: [String] = []
         var failures: [String: String] = [:]
 
-        // refresh areas
+        // retrieve areaModels for zone
+        let areaModels = try await AreaModel
+            .query(on: database)
+            .filter(\.$zone == zone)
+            .all()
+
+        // refresh areaModels
         for areaModel in areaModels {
             let areaId = String(describing: areaModel.id!)
             do {
@@ -53,7 +59,11 @@ extension DataRefreshService: DataRefreshServicing {
         }
 
         // save report
-        try await DataRefreshReportModel(successes: successes, failures: failures).save(on: database)
+        try await DataRefreshReportModel(
+            zone: zone,
+            successes: successes,
+            failures: failures
+        ).save(on: database)
 
         // trim reports if needed
         try await trimReportsIfNeeded(using: database)

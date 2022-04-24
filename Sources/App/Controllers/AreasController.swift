@@ -42,7 +42,7 @@ struct AreasController: AreasControlling {
         if let todaysForecast = try? await areaModel.$todaysForecast.get(on: database),
            let decodedResponse = try? jsonDecoder.decode(AWForecasts1DayDataResponse.self, from: todaysForecast.forecast),
            let dailyForecast = decodedResponse.dailyForecasts.first {
-            today = getTodaysWeather(using: dailyForecast)
+            today = WeatherDataResponseBuilder.getTodaysWeather(using: dailyForecast)
         }
 
 
@@ -75,7 +75,8 @@ struct AreasController: AreasControlling {
     }
 }
 
-fileprivate extension AreasController {
+// TODO: rename? and move into file
+struct WeatherDataResponseBuilder {
     static func getTodaysWeather(using dailyForecast: AWForecasts1DayDataResponse.DailyForecast) -> AreasByIdResponse.Weather.Today? {
         let weatherType = AreasByIdResponse.Weather.self
         let todayType = weatherType.Today.self
