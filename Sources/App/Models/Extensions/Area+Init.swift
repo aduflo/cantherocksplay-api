@@ -1,5 +1,5 @@
 //
-//  Area+AreaModel.swift
+//  Area+Init.swift
 //  
 //
 //  Created by Adam Duflo on 3/15/22.

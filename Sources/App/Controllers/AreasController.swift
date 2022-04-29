@@ -42,7 +42,7 @@ struct AreasController: AreasControlling {
         if let todaysForecast = try? await areaModel.$todaysForecast.get(on: database),
            let decodedResponse = try? jsonDecoder.decode(AWForecasts1DayDataResponse.self, from: todaysForecast.forecast),
            let dailyForecast = decodedResponse.dailyForecasts.first {
-            today = WeatherDataResponseBuilder.getTodaysWeather(using: dailyForecast)
+            today = .init(dailyForecast: dailyForecast)
         }
 
 
@@ -72,87 +72,5 @@ struct AreasController: AreasControlling {
                 recentHistory: recentHistory
             )
         )
-    }
-}
-
-// TODO: rename? and move into file
-struct WeatherDataResponseBuilder {
-    static func getTodaysWeather(using dailyForecast: AWForecasts1DayDataResponse.DailyForecast) -> AreasByIdResponse.Weather.Today? {
-        let weatherType = AreasByIdResponse.Weather.self
-        let todayType = weatherType.Today.self
-        let temperatureType = todayType.Temperature.self
-        let dayUnitType = todayType.DayUnit.self
-        let precipitationType = dayUnitType.Precipitation.self
-        let temperatureValueUnitType = weatherType.ValueUnit<AreasByIdResponse.Weather.Today.Temperature.Scale>.self
-        let amountValueUnitType = weatherType.ValueUnit<AreasByIdResponse.Weather.Today.DayUnit.Precipitation.LengthUnit>.self
-
-        let awDfTemperature = dailyForecast.temperature
-        let awDfDay = dailyForecast.day
-        let awDfNight = dailyForecast.night
-
-        guard let dfTemperatureMaximumValue = awDfTemperature.maximum?.value,
-              let dfTemperatureMaximumUnit = awDfTemperature.maximum?.unit,
-              let temperatureHighUnit = temperatureType.Scale.init(awScale: dfTemperatureMaximumUnit),
-              let dfTemperatureMinimumValue = awDfTemperature.minimum?.value,
-              let dfTemperatureMinimumUnit = awDfTemperature.minimum?.unit,
-              let temperatureLowUnit = temperatureType.Scale.init(awScale: dfTemperatureMinimumUnit),
-              let awDfDayPrecipitationProbability = awDfDay.precipitationProbability,
-              let awDfDayTotalLiquidValue = awDfDay.totalLiquid?.value,
-              let awDfDayTotalLiquidUnit = awDfDay.totalLiquid?.unit,
-              let daytimePrecipitationAmountUnit = precipitationType.LengthUnit.init(awLengthUnit: awDfDayTotalLiquidUnit),
-              let awDfNightPrecipitationProbability = awDfNight.precipitationProbability,
-              let awDfNightTotalLiquidValue = awDfNight.totalLiquid?.value,
-              let awDfNightTotalLiquidUnit = awDfNight.totalLiquid?.unit,
-              let nighttimePrecipitationAmountUnit = precipitationType.LengthUnit.init(awLengthUnit: awDfNightTotalLiquidUnit)
-        else {
-            return nil
-        }
-
-        let temperature = temperatureType.init(
-            high: temperatureValueUnitType.init(
-                value: dfTemperatureMaximumValue,
-                unit: temperatureHighUnit
-            ),
-            low: temperatureValueUnitType.init(
-                value: dfTemperatureMinimumValue,
-                unit: temperatureLowUnit
-            )
-        )
-
-        let daytime = dayUnitType.init(
-            message: awDfDay.shortPhrase,
-            precipitation: precipitationType.init(
-                probability: awDfDayPrecipitationProbability,
-                kind: .init(awPrecipitationType: awDfDay.precipitationType),
-                intensity: .init(awPrecipitationIntensity: awDfDay.precipitationIntensity),
-                amount: amountValueUnitType.init(
-                    value: awDfDayTotalLiquidValue,
-                    unit: daytimePrecipitationAmountUnit
-                )
-            )
-        )
-
-        let nighttime = dayUnitType.init(
-            message: awDfNight.shortPhrase,
-            precipitation: precipitationType.init(
-                probability: awDfNightPrecipitationProbability,
-                kind: .init(awPrecipitationType: awDfNight.precipitationType),
-                intensity: .init(awPrecipitationIntensity: awDfNight.precipitationIntensity),
-                amount: amountValueUnitType.init(
-                    value: awDfNightTotalLiquidValue,
-                    unit: nighttimePrecipitationAmountUnit
-                )
-            )
-        )
-
-        return todayType.init(
-            temperature: temperature,
-            daytime: daytime,
-            nighttime: nighttime
-        )
-    }
-
-    static func getRecentHistory(using hour: Any) -> AreasByIdResponse.Weather.RecentHistory? {
-        return nil
     }
 }
