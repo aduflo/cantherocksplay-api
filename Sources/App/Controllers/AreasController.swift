@@ -31,46 +31,37 @@ struct AreasController: AreasControlling {
     }
     
     static func getAreas(id: UUID, using database: Database) async throws -> AreasByIdResponse {
-        // TODO: implement :)
         guard let areaModel = try await AreaModel.find(id, on: database) else {
             throw Abort(.notFound)
         }
 
         let jsonDecoder = JSONDecoder()
 
-        var today: AreasByIdResponse.Weather.Today? = nil
-        if let todaysForecast = try? await areaModel.$todaysForecast.get(on: database),
-           let decodedResponse = try? jsonDecoder.decode(AWForecasts1DayDataResponse.self, from: todaysForecast.forecast),
-           let dailyForecast = decodedResponse.dailyForecasts.first {
-            today = .init(dailyForecast: dailyForecast)
+        var awForecasts1DayDataResponse: AWForecasts1DayDataResponse?
+        if let todaysForecast = try? await areaModel.$todaysForecast.get(on: database) {
+            awForecasts1DayDataResponse = try? jsonDecoder.decode(AWForecasts1DayDataResponse.self, from: todaysForecast.forecast)
         }
 
-
-        var recentHistory: AreasByIdResponse.Weather.RecentHistory? = nil
+        var awHistorical24HrDataResponses: [AWHistorical24HrDataResponse]?
         if let dailyHistories = try await areaModel.$weatherHistory.get(on: database)?.dailyHistories {
-            for dailyHistory in dailyHistories {
-//                let response = try jsonDecoder.decode(AWHistorical24HrDataResponse.self, from: dailyHistory)
-//                print("AWHistorical24HrDataResponse: \(response.toJSONString() ?? "")")
-//                for hour in response.hours {
-//
-//                }
+            awHistorical24HrDataResponses = dailyHistories.compactMap { data in
+                return try? jsonDecoder.decode(AWHistorical24HrDataResponse.self, from: data)
             }
         }
 
-        recentHistory = .init() // TODO: cleanup.. only being used to pass guard statement
-
-        guard let today = today,
-              let recentHistory = recentHistory
+        guard let awForecasts1DayDataResponse = awForecasts1DayDataResponse,
+              let awHistorical24HrDataResponses = awHistorical24HrDataResponses,
+              let weather = AreasByIdResponse.Weather(
+                awForecasts1DayDataResponse: awForecasts1DayDataResponse,
+                awHistorical24HrDataResponses: awHistorical24HrDataResponses
+              )
         else {
-            throw Abort(.internalServerError, reason: "Insufficient data available to build response")
+            throw Abort(.internalServerError, reason: "Failed to build response")
         }
 
         return AreasByIdResponse(
             metadata: Area(model: areaModel),
-            weather: AreasByIdResponse.Weather(
-                today: today,
-                recentHistory: recentHistory
-            )
+            weather: weather
         )
     }
 }

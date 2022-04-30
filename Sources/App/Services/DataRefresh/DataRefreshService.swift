@@ -11,7 +11,7 @@ import Vapor
 
 protocol DataRefreshServicing {
     ///
-    var maxDailyHistoriesCount: Int { get }
+    static var maxDailyHistoriesCount: Int { get }
     ///
     var maxReportsCount: Int { get }
 
@@ -28,7 +28,7 @@ struct DataRefreshService {
 }
 
 extension DataRefreshService: DataRefreshServicing {
-    var maxDailyHistoriesCount: Int { 3 }
+    static var maxDailyHistoriesCount: Int { 3 }
     var maxReportsCount: Int { 7 * Zone.allCases.count } // a weeks worth of scheduled jobs
 
     func refreshWeatherData(for zone: Zone, using database: Database) async throws {
@@ -90,6 +90,7 @@ fileprivate extension DataRefreshService {
 
         var dailyHistories = weatherHistory.dailyHistories
         dailyHistories.insert(historical24HrData, at: 0)
+        let maxDailyHistoriesCount = Self.maxDailyHistoriesCount
         while dailyHistories.count > maxDailyHistoriesCount {
             dailyHistories.removeLast()
         }

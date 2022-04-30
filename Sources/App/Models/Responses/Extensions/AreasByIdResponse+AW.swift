@@ -8,7 +8,7 @@
 import Foundation
 import CTRPCommon
 
-extension AreasByIdResponse.Weather.Today.Temperature.Scale {
+extension AreasByIdResponse.Weather.ScaleUnit {
     public init?(awScale: String?) {
         switch awScale {
         case "F":
@@ -21,7 +21,7 @@ extension AreasByIdResponse.Weather.Today.Temperature.Scale {
     }
 }
 
-extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.Kind {
+extension AreasByIdResponse.Weather.Today.DayInfo.Precipitation.Kind {
     public init?(awPrecipitationType: String?) {
         switch awPrecipitationType {
         case "Rain":
@@ -38,7 +38,7 @@ extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.Kind {
     }
 }
 
-extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.Intensity {
+extension AreasByIdResponse.Weather.Today.DayInfo.Precipitation.Intensity {
     public init?(awPrecipitationIntensity: String?) {
         switch awPrecipitationIntensity {
         case "Light":
@@ -53,7 +53,7 @@ extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.Intensity {
     }
 }
 
-extension AreasByIdResponse.Weather.Today.DayUnit.Precipitation.LengthUnit {
+extension AreasByIdResponse.Weather.DepthUnit {
     public init?(awLengthUnit: String?) {
         switch awLengthUnit {
         case "in":
