@@ -43,7 +43,7 @@ struct AreasController: AreasControlling {
         }
 
         var awHistorical24HrDataResponses: [AWHistorical24HrDataResponse]?
-        if let dailyHistories = try await areaModel.$weatherHistory.get(on: database)?.dailyHistories {
+        if let dailyHistories = try? await areaModel.$weatherHistory.get(on: database)?.dailyHistories {
             awHistorical24HrDataResponses = dailyHistories.compactMap { data in
                 return try? jsonDecoder.decode(AWHistorical24HrDataResponse.self, from: data)
             }
