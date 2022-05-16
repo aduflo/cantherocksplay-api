@@ -42,7 +42,7 @@ fileprivate func areasRoute(addedTo routesBuilder: RoutesBuilder) {
             throw Abort(.internalServerError, reason: "Failed to extract {\(idParam)} parameter")
         }
         
-        return try await AreasController.getAreas(id: id, using: request.db)
+        return try await AreasController.getAreasById(id, using: request.db)
     }
     .description("Returns area info for {\(idParam)}.")
 }
